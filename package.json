@@ -4,6 +4,9 @@
   "private": true,
   "homepage": ".",
   "dependencies": {
+    "@emotion/react": "^11.4.1",
+    "@emotion/styled": "^11.3.0",
+    "@mui/material": "^5.0.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -23,12 +26,12 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts start",
+    "build": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "predeploy": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+    "deploy": "NODE_OPTIONS=--max-old-space-size=8192 gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
