@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { tryIt, Application, PSEContextProvider, API } from 'projection-space-explorer';
+import { PSEContextProvider, API, Application, PluginRegistry } from 'projection-space-explorer';
+import { ChemPlugin } from './plugins/Cime/ChemPlugin';
+
+PluginRegistry.getInstance().registerPlugin(new ChemPlugin())
 
 function App() {
   const [context, setContext] = useState(new API())
 
   return <PSEContextProvider context={context}>
-    <Application />
+    <Application config={{}} />
   </PSEContextProvider>
 }
 
