@@ -6,6 +6,8 @@
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
+    "@material-ui/icons": "^4.11.2",
+    "@mui/icons-material": "^5.0.3",
     "@mui/material": "^5.0.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
@@ -15,9 +17,10 @@
     "@types/react": "^17.0.27",
     "@types/react-dom": "^17.0.9",
     "node-sass": "^6.0.1",
-    "projection-space-explorer": "https://github.com/jku-vds-lab/projection-space-explorer#mschoefl/norm",
+    "projection-space-explorer": "https://github.com/jku-vds-lab/projection-space-explorer#mschoefl/testmigration",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-loader-spinner": "^4.0.0",
     "react-promise-tracker": "^2.1.0",
     "react-redux": "^7.2.5",
     "react-scripts": "4.0.3",
@@ -26,7 +29,7 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts start",
+    "start": "NODE_OPTIONS=--max-old-space-size=8192 PORT=8080 react-scripts start",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

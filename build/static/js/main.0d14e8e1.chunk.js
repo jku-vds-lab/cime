@@ -1,2 +1,0 @@
-(this["webpackJsonppse-cime"]=this["webpackJsonppse-cime"]||[]).push([[0],{20:function(e,t,n){},21:function(e,t,n){},44:function(e,t,n){"use strict";n.r(t);var c=n(0),i=n.n(c),r=n(7),o=n.n(r),s=(n(20),n(15)),a=(n(21),n(4)),j=n(1);var p=function(){var e=Object(c.useState)(new a.API),t=Object(s.a)(e,2),n=t[0];return t[1],Object(j.jsx)(a.PSEContextProvider,{context:n,children:Object(j.jsx)(a.Application,{})})};o.a.render(Object(j.jsx)(i.a.StrictMode,{children:Object(j.jsx)(p,{})}),document.getElementById("root"))}},[[44,1,2]]]);
-//# sourceMappingURL=main.0d14e8e1.chunk.js.map

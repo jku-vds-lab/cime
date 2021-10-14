@@ -1,4 +1,4 @@
-import { Toolbar } from "@material-ui/core";
+import { Toolbar } from "@mui/material";
 import { AppBar, Typography } from "@mui/material";
 import { PseAppBar } from "projection-space-explorer";
 

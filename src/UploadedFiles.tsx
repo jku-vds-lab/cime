@@ -1,10 +1,12 @@
-import { Button, Divider, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader } from "@material-ui/core"
-import DeleteIcon from '@material-ui/icons/Delete';
-import { DatasetType, delete_file, get_uploaded_files, LoadingIndicatorView, useCancellablePromise } from "projection-space-explorer";
+import { Button, Divider, Grid, IconButton, List, ListItem, ListItemSecondaryAction, ListItemText, ListSubheader } from "@mui/material"
+import DeleteIcon from '@mui/icons-material/Delete';
+import { DatasetType, useCancellablePromise } from "projection-space-explorer";
 import React from "react";
 import { BiRefresh } from "react-icons/bi";
 import { trackPromise } from "react-promise-tracker";
 import { DEMO } from "./App";
+import { delete_file, get_uploaded_files } from "./Backend";
+import { LoadingIndicatorView } from "./DatasetTabPanel";
 
 
 export const UploadedFiles = ({ onChange, refresh }) => {
