@@ -6,7 +6,6 @@ import { CimeAppBar } from './Overrides/CimeAppBar';
 import { LineUpContext } from './LineUpContext';
 import { LineUpTabPanel } from './Overrides/LineUpTabPanel';
 import { AppState, cimereducers } from './State/Store';
-import { Box, Slider, styled } from '@mui/material';
 
 export const DEMO = false
 
@@ -21,7 +20,7 @@ PluginRegistry.getInstance().registerPlugin(new ChemPlugin())
 
 
 function Cime() {
-  const [context, _] = useState(new API<AppState>(null, createRootReducer(cimereducers)))
+  const [context] = useState(new API<AppState>(null, createRootReducer(cimereducers)))
 
   return <PSEContextProvider context={context}>
     <Application

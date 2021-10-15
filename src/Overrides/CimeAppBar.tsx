@@ -3,7 +3,7 @@ import { AppBar, Typography } from "@mui/material";
 import { PseAppBar } from "projection-space-explorer";
 
 function JJ({ children }) {
-    return <AppBar variant="outlined" position="relative" color="transparent">
+    return <AppBar variant="outlined" elevation={0} position="relative" color="transparent">
         <Toolbar>
             {children}
         </Toolbar>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './chem.scss';
-import { Box, Button, Checkbox, createFilterOptions, FormControl, FormControlLabel, FormGroup, Grid, IconButton, Input, InputLabel, Paper, Popover, Slider, Switch, TextField, Tooltip, Typography } from '@mui/material';
-import { trackPromise, usePromiseTracker } from "react-promise-tracker";
+import { Box, Button, Checkbox, createFilterOptions, FormControl, FormControlLabel, FormGroup, Grid, IconButton, Input, InputLabel, Paper, Popover, Switch, TextField, Tooltip, Typography } from '@mui/material';
+import { trackPromise } from "react-promise-tracker";
 import { connect, ConnectedProps } from 'react-redux';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -12,7 +12,7 @@ import { isFunction } from 'lodash';
 import { useCancellablePromise } from 'projection-space-explorer';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { RootState, selectVectors, setHoverState, WindowMode } from 'projection-space-explorer';
+import { selectVectors, setHoverState, WindowMode } from 'projection-space-explorer';
 import { get_difference_highlight, get_mcs_from_smiles_list, get_representation_list, get_structures_from_smiles_list, get_structure_from_smiles } from '../../Backend/Backend';
 import { LoadingIndicatorView } from '../../Overrides/DatasetTabPanel';
 import { AppState } from '../../State/Store';

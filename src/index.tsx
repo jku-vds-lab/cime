@@ -7,8 +7,6 @@ import './index.css'
  * Main entry point for the app.
  */
 ReactDOM.render(
-  <React.StrictMode>
-    <Cime></Cime>
-  </React.StrictMode>,
+    <Cime></Cime>,
   document.getElementById('root')
 );
