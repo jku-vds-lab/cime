@@ -2,7 +2,7 @@ import { Button, Divider, Grid, IconButton, List, ListItem, ListItemSecondaryAct
 import DeleteIcon from '@mui/icons-material/Delete';
 import { DatasetType, useCancellablePromise } from "projection-space-explorer";
 import React from "react";
-import { BiRefresh } from "react-icons/bi";
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { trackPromise } from "react-promise-tracker";
 import { DEMO } from "./App";
 import { delete_file, get_uploaded_files } from "./Backend";
@@ -48,7 +48,7 @@ export const UploadedFiles = ({ onChange, refresh }) => {
         <Grid item style={{ overflowY: 'auto', flex: '1 1 auto', maxHeight: '400px' }}>
 
         <List subheader={<li />} style={{ backgroundColor: 'white' }}>
-            {!DEMO && <ListSubheader>Uploaded Files <Button onClick={() => update_files()}><BiRefresh/></Button></ListSubheader>}
+            {!DEMO && <ListSubheader>Uploaded Files <Button onClick={() => update_files()}><RefreshIcon style={{ fontSize: '1.25rem' }}/></Button></ListSubheader>}
             {DEMO && <ListSubheader>Select Dataset</ListSubheader>}
             {
             files.map(file_name => (
