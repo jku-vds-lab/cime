@@ -4,8 +4,8 @@ import { DatasetType, useCancellablePromise } from "projection-space-explorer";
 import React from "react";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { trackPromise } from "react-promise-tracker";
-import { DEMO } from "./App";
-import { delete_file, get_uploaded_files } from "./Backend";
+import { DEMO } from "../Cime";
+import { delete_file, get_uploaded_files } from "../Backend/Backend";
 import { LoadingIndicatorView } from "./DatasetTabPanel";
 
 
@@ -52,7 +52,7 @@ export const UploadedFiles = ({ onChange, refresh }) => {
             {DEMO && <ListSubheader>Select Dataset</ListSubheader>}
             {
             files.map(file_name => (
-                <ListItem style={{ maxWidth:'270px', }} key={file_name} button onClick={() => {
+                <ListItem key={file_name} button onClick={() => {
                     handleClick({
                         display: file_name,
                         path: file_name,

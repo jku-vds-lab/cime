@@ -29,6 +29,7 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
+    "windows-start": "react-scripts start",
     "start": "NODE_OPTIONS=--max-old-space-size=8192 PORT=8080 react-scripts start",
     "build": "NODE_OPTIONS=--max-old-space-size=8192 react-scripts build",
     "test": "react-scripts test",

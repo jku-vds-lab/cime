@@ -12,7 +12,7 @@ function JJ({ children }) {
 
 export function CimeAppBar() {
     return <JJ>
-        <a href={"https://www.bayer.com"} target={"_blank"}><img style={{ height: 48, marginLeft: 48 }} src={"textures/bayer-logo.svg"} alt="Powered By Bayer" /></a>
+        <a href={"https://www.bayer.com"} target={"_blank"}><img style={{ height: 48 }} src={"textures/bayer-logo.svg"} alt="Powered By Bayer" /></a>
         <Typography variant="h6" style={{ marginLeft: 48, color: "rgba(0, 0, 0, 0.54)" }}>
             {"CIME: Chem-Informatics Model Explorer"}
         </Typography>

@@ -9,12 +9,14 @@ import InfoIcon from '@mui/icons-material/Info';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { Autocomplete } from '@mui/lab';
 import { isFunction } from 'lodash';
-import { setRDKit_contourLines, setRDKit_refresh, setRDKit_scale, setRDKit_showMCS, setRDKit_sigma, setRDKit_width, setRDKit_doAlignment, useCancellablePromise } from 'projection-space-explorer';
+import { useCancellablePromise } from 'projection-space-explorer';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { RootState, selectVectors, setHoverState, WindowMode } from 'projection-space-explorer';
-import { get_difference_highlight, get_mcs_from_smiles_list, get_representation_list, get_structures_from_smiles_list, get_structure_from_smiles } from '../../Backend';
-import { LoadingIndicatorView } from '../../DatasetTabPanel';
+import { get_difference_highlight, get_mcs_from_smiles_list, get_representation_list, get_structures_from_smiles_list, get_structure_from_smiles } from '../../Backend/Backend';
+import { LoadingIndicatorView } from '../../Overrides/DatasetTabPanel';
+import { AppState } from '../../State/Store';
+import { setRDKit_contourLines, setRDKit_doAlignment, setRDKit_refresh, setRDKit_scale, setRDKit_showMCS, setRDKit_sigma, setRDKit_width } from '../../State/RDKitSettingsDuck';
 
 
 
@@ -24,7 +26,7 @@ import { LoadingIndicatorView } from '../../DatasetTabPanel';
  * Chem Legend, implemented
  */
 
- const mapStateToProps_Chem = (state: RootState) => ({
+ const mapStateToProps_Chem = (state: AppState) => ({
     dataset: state.dataset,
     hoverSettings: state.hoverSettings,
     rdkitSettings: state.rdkitSettings,
@@ -435,7 +437,7 @@ function updateImage(props, cancellablePromise){
     }
 }
 
-const mapStateToProps_Img = (state: RootState) => ({
+const mapStateToProps_Img = (state: AppState) => ({
     hoverState: state.hoverState,
     rdkitSettings: state.rdkitSettings
 })
@@ -556,7 +558,7 @@ function ValueLabelComponent(props: ValLabelProps) {
 
 
 
-const mapStateToProps_settings = (state: RootState) => ({
+const mapStateToProps_settings = (state: AppState) => ({
     rdkitSettings: state.rdkitSettings,
 })
 const mapDispatchToProps_settings = dispatch => ({

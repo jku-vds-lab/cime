@@ -1,5 +1,5 @@
 
-import * as backend_utils from "./Backend";
+import * as backend_utils from "../Backend/Backend";
 import { trackPromise } from "react-promise-tracker";
 import { AVector, CSVLoader, DatasetType, IVector, Loader } from "projection-space-explorer";
 

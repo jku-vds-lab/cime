@@ -3,25 +3,28 @@ import { connect, ConnectedProps } from "react-redux";
 import * as LineUpJS from 'lineupjs'
 import './LineUpContext.scss';
 import { IStringFilter, equal, createSelectionDesc, Column, ERenderMode, IDynamicHeight, IGroupItem, Ranking, IRenderContext, IOrderedGroup, ICellRenderer, ICellRendererFactory, IDataRow, IGroupCellRenderer, renderMissingDOM, StringColumn } from "lineupjs";
-import * as backend_utils from "../Backend";
+import * as backend_utils from "../Backend/Backend";
 import * as _ from 'lodash';
 import React from "react";
-import { ACluster, DiscreteMapping, EXCLUDED_COLUMNS, MyWindowPortal, PrebuiltFeatures, RootState, selectVectors, setHoverState, setLineUpInput_lineup, setLineUpInput_visibility, ShallowSet, StoriesUtil } from "projection-space-explorer";
+import { ACluster, DiscreteMapping, EXCLUDED_COLUMNS, MyWindowPortal, PrebuiltFeatures, selectVectors, setDetailVisibility, setHoverState, ShallowSet, StoriesUtil } from "projection-space-explorer";
 import { TestColumn } from "./LineUpClasses/TestColumn";
+import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
+import { AppState } from "../State/Store";
 
 /**
  * Declares a function which maps application state to component properties (by name)
  * 
  * @param state The whole state of the application (contains a field for each duck!)
  */
-const mapStateToProps = (state: RootState) => ({
+const mapStateToProps = (state: AppState) => ({
     lineUpInput: state.lineUpInput,
     lineUpInput_data: state.dataset?.vectors,
     lineUpInput_columns: state.dataset?.columns,
     currentAggregation: state.currentAggregation,
     activeStory: StoriesUtil.getActive(state.stories),
     pointColorScale: state.pointColorScale,
-    channelColor: state.channelColor
+    channelColor: state.channelColor,
+    detailView: state.detailView
     // splitRef: state.splitRef
     //hoverState: state.hoverState
 })
@@ -34,7 +37,7 @@ const mapStateToProps = (state: RootState) => ({
  */
 const mapDispatchToProps = dispatch => ({
     setCurrentAggregation: (samples: number[]) => dispatch(selectVectors(samples)),
-    setLineUpInput_visibility: visibility => dispatch(setLineUpInput_visibility(visibility)),
+    setLineUpInput_visibility: visibility => dispatch(setDetailVisibility(visibility)),
     setLineUpInput_lineup: input => dispatch(setLineUpInput_lineup(input)),
     setHoverstate: (state, updater) => dispatch(setHoverState(state, updater))
 })
@@ -91,10 +94,11 @@ export const LineUpContext = connector(function ({
     onFilter,
     activeStory,
     pointColorScale,
-    setHoverstate
+    setHoverstate,
+    detailView
 }: Props) {
     // In case we have no input, dont render at all
-    if (!lineUpInput || !lineUpInput_data || !lineUpInput.show) {
+    if (!lineUpInput || !lineUpInput_data || !detailView.open) {
         //splitRef?.current?.setSizes([100, 0])
         return null;
     }
