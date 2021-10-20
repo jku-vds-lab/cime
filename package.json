@@ -46,7 +46,9 @@
     "predeploy": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
     "deploy": "NODE_OPTIONS=--max-old-space-size=8192 gh-pages -d build",
     "precompile:lib": "rm -rf ./lib",
-    "compile:lib": "tsc --build ./tsconfig.lib.json"
+    "compile:lib": "tsc --build ./tsconfig.lib.json",
+    "copy-files:lib": "copyfiles -u 1 \"src/**/*.scss\" lib/",
+    "postcompile:lib": "npm run copy-files:lib"
   },
   "eslintConfig": {
     "extends": [
@@ -67,6 +69,7 @@
     ]
   },
   "devDependencies": {
+    "copyfiles": "^2.4.1",
     "gh-pages": "^3.2.3"
   }
 }
