@@ -1,1 +1,1 @@
-export * from './LineUpTabPanel'
+export * from "./LineUpTabPanel";

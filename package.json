@@ -14,7 +14,7 @@
     "@types/react": "^17.0.27",
     "@types/react-dom": "^17.0.9",
     "node-sass": "^6.0.1",
-    "projection-space-explorer": "https://github.com/jku-vds-lab/projection-space-explorer#mschoefl/testmigration",
+    "projection-space-explorer": "git+https://github.com/jku-vds-lab/projection-space-explorer.git#mschoefl/testmigration",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-loader-spinner": "^4.0.0",

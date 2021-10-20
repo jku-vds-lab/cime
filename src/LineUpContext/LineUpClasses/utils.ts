@@ -1,4 +1,4 @@
-import {hsl} from 'd3-color';
+import { hsl } from "d3-color";
 
 export const CANVAS_HEIGHT = 4;
 
@@ -9,7 +9,7 @@ export function noop() {
 
 export const noRenderer = {
   template: `<div></div>`,
-  update: <() => void>noop
+  update: <() => void>noop,
 };
 
 /** @internal */
@@ -23,9 +23,8 @@ export function setText<T extends Node>(node: T, text?: string): T {
   return node;
 }
 
-
 // side effect
-const adaptColorCache: {[bg: string]: string} = {};
+const adaptColorCache: { [bg: string]: string } = {};
 /**
  * Adapts the text color for a given background color
  * @param {string} bgColor as `#ff0000`
@@ -36,9 +35,8 @@ export function adaptTextColorToBgColor(bgColor: string): string {
   if (bak) {
     return bak;
   }
-  return adaptColorCache[bgColor] = hsl(bgColor).l > 0.5 ? 'black' : 'white';
+  return (adaptColorCache[bgColor] = hsl(bgColor).l > 0.5 ? "black" : "white");
 }
-
 
 /**
  *
@@ -48,10 +46,16 @@ export function adaptTextColorToBgColor(bgColor: string): string {
  * @param {string} title the title to render
  * @param {number} width for which percentages of the cell this background applies (0..1)
  */
-export function adaptDynamicColorToBgColor(node: HTMLElement, bgColor: string, title: string, width: number) {
+export function adaptDynamicColorToBgColor(
+  node: HTMLElement,
+  bgColor: string,
+  title: string,
+  width: number
+) {
   const adapt = adaptTextColorToBgColor(bgColor);
-  if ((width <= 0.05 || adapt === 'black') || width > 0.9) { // almost empty or full
-    node.style.color = adapt === 'black' || width <= 0.05 ? null : adapt; // null = black
+  if (width <= 0.05 || adapt === "black" || width > 0.9) {
+    // almost empty or full
+    node.style.color = adapt === "black" || width <= 0.05 ? null : adapt; // null = black
     // node.classList.remove('lu-gradient-text');
     // node.style.backgroundImage = null;
     return;
@@ -60,8 +64,8 @@ export function adaptDynamicColorToBgColor(node: HTMLElement, bgColor: string, t
   node.style.color = null;
   node.innerText = title;
 
-  const span = node.ownerDocument!.createElement('span');
-  span.classList.add('lu-gradient-text');
+  const span = node.ownerDocument!.createElement("span");
+  span.classList.add("lu-gradient-text");
   span.style.color = adapt;
   span.innerText = title;
   node.appendChild(span);

@@ -1,4 +1,11 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Typography,
+} from "@mui/material";
 import { useCancellablePromise } from "projection-space-explorer";
 import React from "react";
 import { usePromiseTracker } from "react-promise-tracker";
@@ -6,82 +13,114 @@ import { DatasetDrop } from "./DatasetDrop";
 import { SDFLoader } from "./SDFLoader";
 import { SDFModifierDialog } from "./SDFModifierDialog";
 import { UploadedFiles } from "./UploadedFiles";
-import Loader from 'react-loader-spinner'
+import Loader from "react-loader-spinner";
 
-export const LoadingIndicatorView = props => {
-    const { promiseInProgress } = usePromiseTracker({ area: props.area });
-    return (
-        promiseInProgress &&
-        <div
-            style={{
-                width: "100%",
-                height: "100",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center"
-            }}
-        >
-            <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
-        </div>
-    );
-}
+export const LoadingIndicatorView = (props) => {
+  const { promiseInProgress } = usePromiseTracker({ area: props.area });
+  return (
+    promiseInProgress && (
+      <div
+        style={{
+          width: "100%",
+          height: "100",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
+      </div>
+    )
+  );
+};
 
-export const LoadingIndicatorDialog = props => {
-    const { promiseInProgress } = usePromiseTracker({ area: props.area });
+export const LoadingIndicatorDialog = (props) => {
+  const { promiseInProgress } = usePromiseTracker({ area: props.area });
 
-    return <Dialog maxWidth='lg' open={promiseInProgress}> {/*onClose={props.handleClose} */}
-        <DialogContent>
-            <LoadingIndicatorView area={props.area} />
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={props.handleClose}>
-                Cancel
-            </Button>
-        </DialogActions>
+  return (
+    <Dialog maxWidth="lg" open={promiseInProgress}>
+      {" "}
+      {/*onClose={props.handleClose} */}
+      <DialogContent>
+        <LoadingIndicatorView area={props.area} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.handleClose}>Cancel</Button>
+      </DialogActions>
     </Dialog>
-}
+  );
+};
 
 export function DatasetTabPanel({ onDataSelected }) {
-    const [entry, setEntry] = React.useState(null);
-    const [openSDFDialog, setOpen] = React.useState(false);
-    const [refreshUploadedFiles, setRefreshUploadedFiles] = React.useState(0);
+  const [entry, setEntry] = React.useState(null);
+  const [openSDFDialog, setOpen] = React.useState(false);
+  const [refreshUploadedFiles, setRefreshUploadedFiles] = React.useState(0);
 
-    const { cancellablePromise, cancelPromises } = useCancellablePromise();
-    let abort_controller = new AbortController();
+  const { cancellablePromise, cancelPromises } = useCancellablePromise();
+  let abort_controller = new AbortController();
 
-    function onModifierDialogClose(modifiers) {
-        setOpen(false);
-        if (modifiers !== null) {
-            abort_controller = new AbortController();
-            new SDFLoader().resolvePath(entry, onDataSelected, cancellablePromise, modifiers, abort_controller);
-        }
+  function onModifierDialogClose(modifiers) {
+    console.log(entry);
+    setOpen(false);
+    if (modifiers !== null) {
+      abort_controller = new AbortController();
+      new SDFLoader().resolvePath(
+        entry,
+        (dataset) => {
+          console.log("Dataset!!!", dataset);
+          onDataSelected(dataset);
+        },
+        cancellablePromise,
+        modifiers,
+        abort_controller
+      );
     }
+  }
 
-    return <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Box paddingLeft={2} paddingTop={2}>
-            <Typography variant="subtitle2" gutterBottom>{'Custom Datasets (Drag and Drop)'}</Typography>
-        </Box>
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Box paddingLeft={2} paddingTop={2}>
+        <Typography variant="subtitle2" gutterBottom>
+          {"Custom Datasets (Drag and Drop)"}
+        </Typography>
+      </Box>
 
-        <DatasetDrop onChange={(var1, var2) => {
-            onDataSelected(var1, var2);
-            setRefreshUploadedFiles(refreshUploadedFiles + 1);
-        }} cancellablePromise={cancellablePromise} abort_controller={abort_controller} />
+      <DatasetDrop
+        onChange={(dataset) => {
+          console.log("Dataaset", dataset);
+          onDataSelected(dataset);
+          setRefreshUploadedFiles(refreshUploadedFiles + 1);
+        }}
+        cancellablePromise={cancellablePromise}
+        abort_controller={abort_controller}
+      />
 
+      <Box paddingLeft={2} paddingTop={2}>
+        <Typography variant="subtitle2" gutterBottom>
+          {"Predefined Datasets"}
+        </Typography>
+      </Box>
 
+      <UploadedFiles
+        onChange={(entry) => {
+          console.log(entry);
+          setEntry(entry);
+          setOpen(true);
+        }}
+        refresh={refreshUploadedFiles}
+      />
 
-        <Box paddingLeft={2} paddingTop={2}>
-            <Typography variant="subtitle2" gutterBottom>{'Predefined Datasets'}</Typography>
-        </Box>
+      <LoadingIndicatorDialog
+        handleClose={() => {
+          cancelPromises();
+        }}
+        area={"global_loading_indicator"}
+      />
 
-        <UploadedFiles onChange={(entry) => {
-            setEntry(entry);
-            setOpen(true);
-        }} refresh={refreshUploadedFiles} />
-
-
-        <LoadingIndicatorDialog handleClose={() => { cancelPromises(); }} area={"global_loading_indicator"} />
-
-        <SDFModifierDialog openSDFDialog={openSDFDialog} handleClose={onModifierDialogClose}></SDFModifierDialog>
+      <SDFModifierDialog
+        openSDFDialog={openSDFDialog}
+        handleClose={onModifierDialogClose}
+      ></SDFModifierDialog>
     </div>
+  );
 }
-

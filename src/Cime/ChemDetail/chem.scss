@@ -1,44 +1,44 @@
-.chemComponents{
+.chemComponents {
   width: 288px;
   // width: 270px;
   // height: 65vh;
   overflow-x: scroll;
   height: 100%;
 }
-.portalSummary .chemComponents{
+.portalSummary .chemComponents {
   width: 100%;
   height: 100%;
 }
 
-.portalSummary .ParentChem{
+.portalSummary .ParentChem {
   margin-top: 50px;
 }
 
-.portalSummary .ParentImg{
+.portalSummary .ParentImg {
   height: 100%;
   width: fit-content;
 }
 
 .ParentImg .chemContainer {
   // height: 80%;
-  height:fit-content;
+  height: fit-content;
 }
 .ParentImg .chem-grid {
   height: 100%;
   overflow-y: auto;
 }
 
-.ParentImg .legend_single{
+.ParentImg .legend_single {
   width: 360px;
   height: 360px;
 }
 
-.ParentImg .legend_multiple{
+.ParentImg .legend_multiple {
   border: solid white 1px;
   height: fit-content;
   margin-left: 5px;
 }
 
-.ParentImg label{
+.ParentImg label {
   margin: 0px;
 }
