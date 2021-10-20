@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import {
   PSEContextProvider,
@@ -25,10 +26,7 @@ export function CIMEApp() {
   return (
     <PSEContextProvider context={context}>
       <Application
-        config={{
-          baseUrl: "http://localhost:5000",
-          preselect: { url: "datasets/test.sdf" },
-        }}
+        config={{}}
         features={{
           disableEmbeddings: {
             tsne: true,

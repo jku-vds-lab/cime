@@ -1,8 +1,20 @@
 {
-  "name": "pse-cime",
+  "name": "cime",
   "version": "0.1.0",
-  "private": true,
-  "homepage": ".",
+  "private": false,
+  "homepage": "https://github.com/jku-vds-lab/cime",
+  "module": "./lib/export.js",
+  "types": "./lib/export.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jku-vds-lab/cime.git"
+  },
   "dependencies": {
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
@@ -32,7 +44,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
-    "deploy": "NODE_OPTIONS=--max-old-space-size=8192 gh-pages -d build"
+    "deploy": "NODE_OPTIONS=--max-old-space-size=8192 gh-pages -d build",
+    "precompile:lib": "rm -rf ./lib",
+    "compile:lib": "tsc --build ./tsconfig.lib.json"
   },
   "eslintConfig": {
     "extends": [
