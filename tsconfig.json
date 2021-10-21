@@ -17,5 +17,5 @@
     "allowSyntheticDefaultImports": true,
     "strict": false
   },
-  "include": ["src"]
+  "include": ["src", "./src/tsd.d.ts"]
 }
