@@ -37,6 +37,7 @@ import {
 import { TestColumn } from "./LineUpClasses/TestColumn";
 import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
 import { AppState } from "../State/Store";
+import * as d3v5 from "d3v5";
 
 /**
  * Declares a function which maps application state to component properties (by name)
@@ -757,8 +758,6 @@ export class MyLineChartRenderer implements ICellRendererFactory {
         if (renderMissingDOM(n, col, d)) {
           return;
         }
-
-        var d3v5 = require("d3v5");
         // get data
         let row = col.getMap(d);
         const data_mean_list = row[0]["value"];

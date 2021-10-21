@@ -29,9 +29,6 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
     channelColor: any;
     detailView: {
         open: boolean;
-        /**
-         * Factory method which is declared here so we can get a static type in 'ConnectedProps'
-         */
         active: string;
     };
 } & {
@@ -77,9 +74,6 @@ export declare const LineUpContext: import("react-redux").ConnectedComponent<({ 
     channelColor: any;
     detailView: {
         open: boolean;
-        /**
-         * Factory method which is declared here so we can get a static type in 'ConnectedProps'
-         */
         active: string;
     };
 } & {
