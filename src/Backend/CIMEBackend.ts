@@ -331,6 +331,6 @@ if (!process.env.REACT_APP_CIME_BACKEND_URL) {
 export const CIMEBackendFromEnv = new CIMEBackend(
   process.env.REACT_APP_CIME_BACKEND_URL,
   {
-    credentials: "omit",
+    // credentials: "omit",
   }
 );

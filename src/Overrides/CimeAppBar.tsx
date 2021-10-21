@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Toolbar } from "@mui/material";
 import { AppBar, Typography } from "@mui/material";
-import * as BayerLogo from "../assets/bayer-logo.svg";
+import BayerLogo from "../assets/bayer-logo.svg";
 
 export function CimeAppBar() {
   return (

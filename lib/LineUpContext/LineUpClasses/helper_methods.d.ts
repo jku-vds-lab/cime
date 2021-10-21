@@ -1,7 +1,5 @@
 import { IMapAbleDesc, IMappingFunction, INumberFilter, ITypeFactory } from "lineupjs";
-export declare const DEFAULT_FORMATTER: (n: number | {
-    valueOf(): number;
-}) => string;
+export declare const DEFAULT_FORMATTER: any;
 export declare function noNumberFilter(): {
     min: number;
     max: number;

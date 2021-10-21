@@ -10,8 +10,7 @@ import {
   useCancellablePromise,
   // DatasetEntry,
 } from "projection-space-explorer";
-
-var d3v5 = require("d3");
+import * as d3v5 from "d3v5";
 
 function convertFromCSV(vectors) {
   return vectors.map((vector) => {
@@ -23,7 +22,7 @@ export class SDFLoader implements Loader {
   vectors: IVector[] = [];
   datasetType: DatasetType = DatasetType.None;
 
-  loading_area = "global_loading_indicator";
+  loadingArea = "global_loading_indicator";
 
   resolvePath(
     entry: any,
@@ -32,22 +31,16 @@ export class SDFLoader implements Loader {
       typeof useCancellablePromise
     >["cancellablePromise"],
     modifiers?: string,
-    abort_controller?
+    controller?: AbortController
   ) {
     if (entry.uploaded) {
       // TODO: Instead of localstorage store it in state?
       // localStorage.setItem("id", entry.path);
       // use file that is already uploaded to backend
-      this.loadCSV(
-        finished,
-        entry,
-        cancellablePromise,
-        modifiers,
-        abort_controller
-      );
+      this.loadCSV(finished, entry, cancellablePromise, modifiers, controller);
     } else {
       trackPromise(
-        fetch(entry.path, { signal: abort_controller?.signal })
+        fetch(entry.path, { signal: controller?.signal })
           .then((response) => response.blob())
           .then((result) =>
             this.resolveContent(
@@ -55,13 +48,13 @@ export class SDFLoader implements Loader {
               finished,
               cancellablePromise,
               modifiers,
-              abort_controller
+              controller
             )
           )
           .catch((error) => {
             console.log(error);
           }),
-        this.loading_area
+        this.loadingArea
       );
     }
   }
@@ -73,7 +66,7 @@ export class SDFLoader implements Loader {
       typeof useCancellablePromise
     >["cancellablePromise"],
     modifiers?: string,
-    controller?
+    controller?: AbortController
   ) {
     const promise = cancellablePromise
       ? cancellablePromise(
@@ -96,7 +89,7 @@ export class SDFLoader implements Loader {
         .catch((error) => {
           console.log(error);
         }),
-      this.loading_area
+      this.loadingArea
     );
   }
 
@@ -107,7 +100,7 @@ export class SDFLoader implements Loader {
       typeof useCancellablePromise
     >["cancellablePromise"],
     modifiers?: string,
-    controller?
+    controller?: AbortController
   ) {
     // request the server to return a csv file using the unique filename
     const path =
@@ -139,7 +132,7 @@ export class SDFLoader implements Loader {
         .catch((error) => {
           console.log(error);
         }),
-      this.loading_area
+      this.loadingArea
     );
   }
 }
