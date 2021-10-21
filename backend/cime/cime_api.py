@@ -166,6 +166,7 @@ def sdf_to_csv(id, modifiers=None):
         abort(404)
 
     frame = dataset.dataframe
+    all_smiles = frame[smiles_col]
 
     # mols = frame[mol_col]
     # frame = frame.drop(columns=[mol_col])
@@ -224,11 +225,10 @@ def sdf_to_csv(id, modifiers=None):
 
     if not has_fingerprint:  # when there are no morgan fingerprints included in the dataset, calculate them now
         # TODO: We should change that to MolFromSmiles instead of the pickled Mol
-        mols = frame[mol_col]
-        fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(
-            pickle.loads(mol), 5, nBits=256)) for mol in mols])
         # fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(
-        # Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in frame[smiles_col]])
+        #     pickle.loads(mol), 5, nBits=256)) for mol in mols])
+        fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(
+            Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
         fps.columns = [
             'fingerprint_%s{"noLineUp":true,"featureLabel": "fingerprint"}' % fp for fp in fps]
         frame = frame.join(fps)
