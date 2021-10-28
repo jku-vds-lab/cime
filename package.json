@@ -21,6 +21,7 @@
     "@material-ui/icons": "^4.11.2",
     "@mui/icons-material": "^5.0.5",
     "@mui/material": "^5.0.6",
+    "@mui/styles": "^5.0.2",
     "@types/d3": "^5.7.2",
     "@types/jest": "^26.0.24",
     "@types/node": "^12.20.36",

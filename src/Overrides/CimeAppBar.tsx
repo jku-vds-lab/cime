@@ -19,7 +19,7 @@ export function CimeAppBar() {
           variant="h6"
           style={{ marginLeft: 48, color: "rgba(0, 0, 0, 0.54)" }}
         >
-          {"CIME: Chem-Informatics Model Explorer"}
+          {"CIME: ChemInformatics Model Explorer"}
         </Typography>
       </Toolbar>
     </AppBar>
