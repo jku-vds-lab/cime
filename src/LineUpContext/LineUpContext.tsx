@@ -3,7 +3,6 @@ import * as LineUpJS from "lineupjs";
 import "./LineUpContext.scss";
 import {
   IStringFilter,
-  equal,
   createSelectionDesc,
   Column,
   ERenderMode,
@@ -19,6 +18,7 @@ import {
   renderMissingDOM,
   StringColumn,
 } from "lineupjs";
+
 import { CIMEBackendFromEnv } from "../Backend/CIMEBackend";
 import * as _ from "lodash";
 import React from "react";
@@ -38,6 +38,7 @@ import { TestColumn } from "./LineUpClasses/TestColumn";
 import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
 import { AppState } from "../State/Store";
 import * as d3v5 from "d3v5";
+var isEqual = require('lodash.isequal');
 
 /**
  * Declares a function which maps application state to component properties (by name)
@@ -728,7 +729,7 @@ export class StructureImageColumn extends StringColumn {
     return this.structureFilter;
   }
   setFilter(filter: IStructureFilter | null) {
-    if (equal(filter, this.structureFilter)) {
+    if (isEqual(filter, this.structureFilter)) {
       return;
     }
     this.fire(

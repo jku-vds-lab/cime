@@ -77,7 +77,7 @@ export class SDFLoader implements Loader {
     trackPromise(
       promise
         .then((uploaded) => {
-          console.log("UPLOADED", uploaded);
+          //console.log("UPLOADED", uploaded);
           this.loadCSV(
             finished,
             { display: "", type: this.datasetType, path: uploaded.id },

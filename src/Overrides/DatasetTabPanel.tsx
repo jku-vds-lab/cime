@@ -60,14 +60,14 @@ export function DatasetTabPanel({ onDataSelected }) {
   let abort_controller = new AbortController();
 
   function onModifierDialogClose(modifiers) {
-    console.log(entry);
+    //console.log(entry);
     setOpen(false);
     if (modifiers !== null) {
       abort_controller = new AbortController();
       new SDFLoader().resolvePath(
         entry,
         (dataset) => {
-          console.log("Dataset!!!", dataset);
+          //console.log("Dataset!!!", dataset);
           onDataSelected(dataset);
         },
         cancellablePromise,
@@ -87,7 +87,7 @@ export function DatasetTabPanel({ onDataSelected }) {
 
       <DatasetDrop
         onChange={(dataset) => {
-          console.log("Dataaset", dataset);
+          //console.log("Dataaset", dataset);
           onDataSelected(dataset);
           setRefreshUploadedFiles(refreshUploadedFiles + 1);
         }}
@@ -103,7 +103,6 @@ export function DatasetTabPanel({ onDataSelected }) {
 
       <UploadedFiles
         onChange={(entry) => {
-          console.log(entry);
           setEntry(entry);
           setOpen(true);
         }}

@@ -39,7 +39,9 @@ export const UploadedFiles = ({ onChange, refresh }) => {
   function updateFiles() {
     trackPromise(
       cancellablePromise(CIMEBackendFromEnv.getFiles())
-        .then((data) => setFiles(data))
+        .then((data) => {
+          setFiles(data ?? [])
+        })
         .catch((error) => console.log(error)),
       loading_area
     );
@@ -100,5 +102,5 @@ export const UploadedFiles = ({ onChange, refresh }) => {
         </Grid>
       </div>
     )
-  ); //<Divider/>
+  );
 };

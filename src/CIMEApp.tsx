@@ -6,6 +6,7 @@ import {
   Application,
   PluginRegistry,
   createRootReducer,
+  PSEIcons,
 } from "projection-space-explorer";
 import { ChemPlugin } from "./Cime/ChemPlugin";
 import { DatasetTabPanel } from "./Overrides/DatasetTabPanel";
@@ -26,7 +27,11 @@ export function CIMEApp() {
   return (
     <PSEContextProvider context={context}>
       <Application
-        config={{}}
+        config={{
+          preselect: {
+            initOnMount: false
+          }
+        }}
         features={{
           disableEmbeddings: {
             tsne: true,
@@ -43,7 +48,7 @@ export function CIMEApp() {
               tab: LineUpTabPanel,
               title: "LineUp Integration",
               description: "Settings for LineUp Integration",
-              icon: null,
+              icon: PSEIcons.PseLineup,
             },
           ],
           detailViews: [

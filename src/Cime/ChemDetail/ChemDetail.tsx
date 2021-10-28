@@ -1,6 +1,7 @@
 import * as React from "react";
 import "./chem.scss";
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -25,7 +26,6 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import SettingsIcon from "@mui/icons-material/Settings";
 import InfoIcon from "@mui/icons-material/Info";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { Autocomplete } from "@mui/lab";
 import { isFunction } from "lodash";
 import { useCancellablePromise } from "projection-space-explorer";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -972,6 +972,7 @@ const RepresentationList = (props) => {
     },
   });
 
+
   return (
     <Autocomplete
       size={"small"}
@@ -993,6 +994,7 @@ const RepresentationList = (props) => {
           variant="outlined"
         />
       )}
+      isOptionEqualToValue={(option, value) => option.value == value.value}
     />
   );
 };
