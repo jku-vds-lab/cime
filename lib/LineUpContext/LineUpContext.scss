@@ -1,14 +1,23 @@
-/**
- * This style for the class 'lu' is absolutely crucial for LineUp to work (took it from the demos)
- */
-.lu {
-  clear: both;
+.gutter {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  position: relative;
+}
+
+.gutter:hover {
+  background-color: #007dad;
+}
+
+.gutter:after {
+  content: "";
   position: absolute;
-  top: 1px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0;
+  height: 100%;
+  width: 50px;
+  top: 0px;
+  background-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.12) 3px, transparent 3px);
+  background-size: 10px 12px;
+  background-position: center;
+  left:50%;
+  transform:translate(-50%,0%);
 }
 
 .LineUpParent {

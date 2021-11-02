@@ -540,9 +540,15 @@ export const LineUpContext = connector(function ({
     </MyWindowPortal>
   ) : (
     <div className="LineUpParent">
-      <div>
-        <div ref={lineup_ref} id="lineup_view"></div>
-      </div>
+      <div style={{
+          clear: 'both',
+          position: 'absolute',
+          top: '1px',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 0
+      }} ref={lineup_ref} id="lineup_view"></div>
     </div>
   );
 });
