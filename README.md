@@ -16,6 +16,7 @@ Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which in
 
 Check out the [SDF generation example](TODO) if you want to try CIME with your own dataset.
 
+Check out the [Example datasets](https://www.doi.org/10.17605/OSF.IO/KNS6M) from the paper's use cases.
 
 # Documentation
 The ChemInformatics Model Explorer (short CIME) extension of the Projection Space Explorer allows users to interactively explore a fixed subspace of chemical compounds.
@@ -69,7 +70,7 @@ For big files, the initial upload and preprocessing can take several minutes. If
 
 Properties can be compound-specific (i.e. for the whole datapoint) or atom-specific (i.e. one value for each atom in the compound). Details are described in the next subsections.
 
-An example can be found in “backend/test.sdf”.
+A small example can be found in “backend/test.sdf”. Datasets used in CIME's article are available in the data repository: [https://www.doi.org/10.17605/OSF.IO/KNS6M](https://www.doi.org/10.17605/OSF.IO/KNS6M)
 
 #### Compound Properties
 These properties can be used for projection and can be shown in the LineUp table (like solubility, atom weight, or any other property that is important to the user). 
@@ -252,9 +253,9 @@ There is always a valid build in the repository, but in case you want to make ch
 ```bash
 npm run webpack:dev
 ```
-Whenever a file is changed while this server is running, it will automatically build a new version and deploy it in the /dist folder.
+Whenever a file is changed while this server is running, it will automatically build a new version and deploy it in the `/dist` folder.
 ## Starting the application
-To start the application you just need to start the index.html locally. The easiest way to this is by using the live server provided by either Atom or Visual Studio Code.
+To start the application you just need to start the `index.html` locally. The easiest way to this is by using the live server provided by either Atom or Visual Studio Code.
 
 ## Backend
 In the backend, a Python server runs with the Bottle Framework (https://bottlepy.org/docs/dev/). Many features that relate to the “Chem” aspects of the Projection Space Explorer are only available if the backend is running. Also, the feature to derive groups from clustering is only available in the backend.
@@ -266,7 +267,7 @@ To start the server you need to create a conda environment with the following de
 - joblib=0.17.0
 - bottle-beaker=0.1.3
 
-A requirements.txt is provided in the folder “backend”.
+A `requirements.txt` is provided in the folder `backend`.
 
 Using this environment you only have to start the server by running 
 ```bash
@@ -276,10 +277,10 @@ python backend-cime-dist.py
 ## Run Application with Docker
 To combine frontend and backend in a docker image we provide a Dockerfile. 
 Before creating the image you have to adjust some settings:
-- In the “backend/backend-cime-dist.py” the “response_header_origin_localhost” constant needs to be set to “http://localhost:8080”
-- In the “backend/backend-cime-dist.py” the line that starts the server needs to be replaced by “run(app=app, host='0.0.0.0', port=8080)”
-- In the “src/utils/backend-connect.ts” the “BASE_URL” constant needs to be set to an empty string (i.e. “”)
-- In the “src/utils/frontend-connect.ts” the “BASE_PATH” constant needs to be set to an empty string (i.e. “”)
+- In the `backend/backend-cime-dist.py` the `response_header_origin_localhost` constant needs to be set to “http://localhost:8080”
+- In the `backend/backend-cime-dist.py` the line that starts the server needs to be replaced by `run(app=app, host='0.0.0.0', port=8080)`
+- In the `src/utils/backend-connect.ts` the `BASE_URL` constant needs to be set to an empty string (i.e. `“”`)
+- In the `src/utils/frontend-connect.ts` the `BASE_PATH` constant needs to be set to an empty string (i.e. `“”`)
 
 In the root folder of the project, you can create the docker image by running
 ```bash
