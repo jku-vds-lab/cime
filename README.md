@@ -8,7 +8,7 @@ This repository includes:
     * [Back-end](backend/) python server
 * [Documentation](#documentation)
 * [Installation](#installation)
-* [How to cite?](#how-to-cite?)
+* [How to cite?](#how-to-cite)
 
 Check out a [preprint of our paper](TODO) for further details about the implementation and use cases of CIME. 
 Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which includes the datasets used in the use cases.
