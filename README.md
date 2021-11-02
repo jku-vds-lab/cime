@@ -210,11 +210,15 @@ The table can be used interactively with the scatter plot that represents the pr
 ## Install npm packages
 Use a git tool to clone this repository to your computer.
 ```bash
-git clone https://github.com/jku-vds-lab/projection-space-explorer/tree/chemVis
+git clone https://github.com/jku-vds-lab/cime.git
 ```
 Then navigate to this folder in a terminal using
 ```bash
-cd projection-space-explorer
+cd cime
+```
+Checkout the main branch
+```bash
+git checkout main
 ```
 and run the command to install the required packages
 ```bash
