@@ -1,14 +1,18 @@
 # ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations
-#### Published in: TODO ####
+#### Published in: under Review... ####
 #### DOI: TODO ###
 
 This repository includes:
 * The implementation of CIME
-    * Frontend
-    * [Backend](backend/)
+    * Front-end web application written in TypeScript using React
+    * [Back-end](backend/) python server
 * [Documentation](#documentation)
 * [Installation](#installation)
+* [How to cite?](#how-to-cite?)
 
+Check out a [preprint of our paper](TODO) for further details about the implementation and use cases of CIME. 
+Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which includes the datasets used in the use cases.
+Check out the [SDF generation example](TODO) if you want to try CIME with your own dataset.
 
 # Documentation
 The ChemInformatics Model Explorer (short CIME) extension of the Projection Space Explorer allows users to interactively explore a fixed subspace of chemical compounds.
@@ -45,13 +49,15 @@ The following describes a list of controls:
 - mouse wheel: zoom in and out to get a more/less detailed view of the items in the scatterplot
 - right-click on background or item: opens a context menu that allows to create a group from the selected points
 - right-click on group center: opens group context menu that allows to delete a group or start the storytelling feature
+
 ## Dataset
 When loading the website there is a default dataset loaded, which is called "test.sdf".
 Additionally, users can load datasets that were already uploaded previously or they can upload their own custom dataset.
 The list of uploaded files includes all SDF files that are available in the backend (from any user!) and can be deleted with the delete button next to the filename.
 The list can also be manually refreshed with the refresh button next to "Uploaded Files" (this is only necessary if another user uploads a file during a simultaneous session and the current user needs this exact file).
 
-If a user wants to upload a custom file they have to use the file format that is described in the “Data Format” subsection.
+If a user wants to upload a custom file they have to use the file format that is described in the “Data Format” subsection. We provide an [SDF generation example](TODO) to get users started with their own datasets.
+
 
 ### Data Format
 Data is handed to the system using a Structure-Data File (SDF) (https://en.wikipedia.org/wiki/Chemical_table_file#SDF) that contains a collection of chemical compounds and additional properties that can be customized.
@@ -281,3 +287,20 @@ and run the image with
 docker run -d -p 8080:8080 --detach cime
 ```
 The application will be available on ‘localhost:8080’.
+
+
+# How to cite?
+
+You can cite CIME using the following bibtex:
+
+```bibtex
+@article{humerheberle2021cime,  
+  author={C. {Humer} and H. {Heberle} and TODO},
+  journal={TODO},   
+  title={ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations},   
+  volume={TODO},  
+  number={TODO},  
+  pages={TODO}, 
+  year={2021},  
+  doi={TODO}}
+```
