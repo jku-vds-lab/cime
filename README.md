@@ -1,4 +1,13 @@
-# Documentation CIME
+# ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations
+#### Published in: TODO ####
+#### DOI: TODO ###
+
+This repository includes:
+- [Documentation](#documentation)
+- [Installation](#installation)
+
+
+# Documentation
 The ChemInformatics Model Explorer (short CIME) extension of the Projection Space Explorer allows users to interactively explore a fixed subspace of chemical compounds.
 Users can apply a 2D projection to the provided data, and additionally show the high-dimensional data in a LineUp table.
 Furthermore, users can select datapoints and show the 2D compound structures of all selected items, aligned to each other, in a side-view.
@@ -206,6 +215,8 @@ The SMILES columns have some additional features:
 The table can be used interactively with the scatter plot that represents the projected space and the summary view that shows selected items:
 - Hovering items in the table highlights the corresponding items in the other views as well and vice versa.
 - Users can select items in the table, which are also selected in the other views and vice versa.
+
+
 # Installation
 ## Install npm packages
 Use a git tool to clone this repository to your computer.
