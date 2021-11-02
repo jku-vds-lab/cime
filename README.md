@@ -11,8 +11,11 @@ This repository includes:
 * [How to cite?](#how-to-cite)
 
 Check out a [preprint of our paper](TODO) for further details about the implementation and use cases of CIME. 
+
 Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which includes the datasets used in the use cases.
+
 Check out the [SDF generation example](TODO) if you want to try CIME with your own dataset.
+
 
 # Documentation
 The ChemInformatics Model Explorer (short CIME) extension of the Projection Space Explorer allows users to interactively explore a fixed subspace of chemical compounds.
