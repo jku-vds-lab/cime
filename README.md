@@ -3,11 +3,11 @@
 #### DOI: TODO ###
 
 This repository includes:
-- The implementation of CIME
- - Frontend
- - [Backend](backend/)
-- [Documentation](#documentation)
-- [Installation](#installation)
+* The implementation of CIME
+ * Frontend
+ * [Backend](backend/)
+* [Documentation](#documentation)
+* [Installation](#installation)
 
 
 # Documentation
