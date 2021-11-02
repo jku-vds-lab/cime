@@ -4,8 +4,8 @@
 
 This repository includes:
 * The implementation of CIME
- * Frontend
- * [Backend](backend/)
+    * Frontend
+    * [Backend](backend/)
 * [Documentation](#documentation)
 * [Installation](#installation)
 
