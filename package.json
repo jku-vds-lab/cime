@@ -1,9 +1,9 @@
 {
-  "name": "projection-path-explorer",
+  "name": "cime",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Moritz Schöfl",
-  "license": "MIT",
+  "author": "Christina Humer",
+  "license": "BSD 3-Clause License",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.2",
     "@fortawesome/react-fontawesome": "^0.1.14",
