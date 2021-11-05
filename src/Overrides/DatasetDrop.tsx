@@ -36,6 +36,7 @@ export const DatasetDrop = ({
       direction="column"
       style={{ padding: "16px" }}
     >
+      {/**@ts-ignore**/}
       <DragAndDrop
         accept="*"
         handleDrop={(files) => {

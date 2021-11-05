@@ -7,7 +7,7 @@ setup(
     install_requires=[
         'flask',
         'flask_sqlalchemy',
-        'projection-space-explorer @ git+https://github.com/jku-vds-lab/projection-space-explorer.git@mschoefl/testmigration#egg=projection-space-explorer&subdirectory=backend',
+        'projection-space-explorer @ git+https://github.com/jku-vds-lab/projection-space-explorer.git@develop#egg=projection-space-explorer&subdirectory=backend',
         'rdkit-pypi',
         'joblib',
         'flask-cors'

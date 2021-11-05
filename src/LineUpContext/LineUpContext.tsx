@@ -530,6 +530,7 @@ export const LineUpContext = connector(function ({
 
   //https://github.com/lineupjs/lineup_app/blob/master/src/export.ts
   return false ? (
+    /**@ts-ignore**/
     <MyWindowPortal
       onClose={() => {
         lineUpInput.lineup?.destroy();
