@@ -46,6 +46,7 @@ var isEqual = require('lodash.isequal');
  * @param state The whole state of the application (contains a field for each duck!)
  */
 const mapStateToProps = (state: AppState) => ({
+  dataset: state.dataset,
   lineUpInput: state.lineUpInput,
   lineUpInput_data: state.dataset?.vectors,
   lineUpInput_columns: state.dataset?.columns,
@@ -112,6 +113,7 @@ const UNIQUE_ID = "unique_ID";
  * Our component definition, by declaring our props with 'Props' we have static types for each of our property
  */
 export const LineUpContext = connector(function ({
+  dataset,
   lineUpInput,
   lineUpInput_data,
   lineUpInput_columns,
@@ -454,9 +456,7 @@ export const LineUpContext = connector(function ({
 
   // this effect is allways executed after the component is rendered when currentAggregation changed
   React.useEffect(() => {
-    console.log("set selection");
     if (lineUpInput.lineup != null) {
-      console.log("set selection");
       // select those instances that are also selected in the scatter plot view
       if (
         currentAggregation.aggregation &&
@@ -469,9 +469,9 @@ export const LineUpContext = connector(function ({
           .filter((x) => x !== undefined);
         lineUpInput.lineup.setSelection(currentSelection_scatter);
 
-        console.log("set selection");
-        console.log(lineUpInput);
-        console.log(currentSelection_scatter);
+        //console.log("set selection");
+        //console.log(lineUpInput);
+        //console.log(currentSelection_scatter);
 
         // const lineup_idx = lineup.renderer?.rankings[0]?.findNearest(currentSelection_scatter);
         // lineup.renderer?.rankings[0]?.scrollIntoView(lineup_idx);
@@ -503,9 +503,10 @@ export const LineUpContext = connector(function ({
             });
 
             let regex_str = "";
-            lineUpInput.filter[key].forEach((element) => {
+
+            lineUpInput.filter[key].forEach((element: number) => {
               regex_str += "|";
-              regex_str += element["__meta__"]["meshIndex"];
+              regex_str += dataset.vectors[element].__meta__.meshIndex;
             });
             regex_str = regex_str.substr(1); // remove the leading "|"
             const my_regex = new RegExp(`^(${regex_str})$`, "i"); // i modifier says that it's not case sensitive; ^ means start of string; $ means end of string
