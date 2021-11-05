@@ -13,7 +13,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/asdf'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
     app.config['CIME_FILES_DIRECTORY'] = os.path.join(
         os.path.dirname(__file__), 'temp-files')
     app.logger.setLevel(logging.INFO)
