@@ -6,6 +6,7 @@ import { TestColumn } from "./LineUpClasses/TestColumn";
  * Factory method which is declared here so we can get a static type in 'ConnectedProps'
  */
 declare const connector: import("react-redux").InferableComponentEnhancerWithProps<{
+    dataset: import("projection-space-explorer").Dataset;
     lineUpInput: import("../State/LineUpInputDuck").LineUpType;
     lineUpInput_data: import("projection-space-explorer").IVector[];
     lineUpInput_columns: {
@@ -50,7 +51,8 @@ declare type Props = PropsFromRedux & {
 /**
  * Our component definition, by declaring our props with 'Props' we have static types for each of our property
  */
-export declare const LineUpContext: import("react-redux").ConnectedComponent<({ lineUpInput, lineUpInput_data, lineUpInput_columns, currentAggregation, channelColor, setCurrentAggregation, setLineUpInput_lineup, setLineUpInput_visibility, onFilter, activeStory, pointColorScale, setHoverstate, detailView, }: Props) => JSX.Element, import("react-redux").Omit<{
+export declare const LineUpContext: import("react-redux").ConnectedComponent<({ dataset, lineUpInput, lineUpInput_data, lineUpInput_columns, currentAggregation, channelColor, setCurrentAggregation, setLineUpInput_lineup, setLineUpInput_visibility, onFilter, activeStory, pointColorScale, setHoverstate, detailView, }: Props) => JSX.Element, import("react-redux").Omit<{
+    dataset: import("projection-space-explorer").Dataset;
     lineUpInput: import("../State/LineUpInputDuck").LineUpType;
     lineUpInput_data: import("projection-space-explorer").IVector[];
     lineUpInput_columns: {
@@ -83,7 +85,7 @@ export declare const LineUpContext: import("react-redux").ConnectedComponent<({ 
     setHoverstate: (state: any, updater: any) => any;
 } & {
     onFilter: any;
-}, "lineUpInput" | "setCurrentAggregation" | "setHoverstate" | "lineUpInput_data" | "lineUpInput_columns" | "currentAggregation" | "channelColor" | "setLineUpInput_lineup" | "setLineUpInput_visibility" | "activeStory" | "pointColorScale" | "detailView">>;
+}, "lineUpInput" | "dataset" | "setCurrentAggregation" | "setHoverstate" | "lineUpInput_data" | "lineUpInput_columns" | "currentAggregation" | "channelColor" | "setLineUpInput_lineup" | "setLineUpInput_visibility" | "activeStory" | "pointColorScale" | "detailView">>;
 export interface IStructureFilter extends IStringFilter {
     filter: string;
     valid: Set<string>;
