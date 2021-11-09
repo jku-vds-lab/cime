@@ -10,6 +10,8 @@ import {
   BaseConfig,
   FeatureConfig,
   ComponentConfig,
+  DatasetType,
+  setDatasetEntriesAction,
 } from "projection-space-explorer";
 import { ChemPlugin } from "./Cime/ChemPlugin";
 import { DatasetTabPanel } from "./Overrides/DatasetTabPanel";
@@ -65,9 +67,35 @@ export const DEFAULT_CIME_APP_CONFIG = {
 }
 
 
+fetch('/jku-vds-lab/cime/bundle.js', {
+  mode: 'no-cors'
+}).then((response) => response.text())
+.then(json => {
+  console.log(json)
+})
+.catch(() => {
+  console.log("wrong")
+})
+
+
 export function CIMEApp(props: CIMEAppProps) {
+  const api = new API<AppState>(null, createRootReducer(CIMEReducers))
+
+  api.store.dispatch(setDatasetEntriesAction([
+    {
+      display: "Chess: 190 Games",
+      path: "domain_5000_experiments_0.csv",
+      type: DatasetType.None
+    },
+    {
+      display: "Chess: 450 Games",
+      path: "cube1x2.csv",
+      type: DatasetType.Rubik
+    }
+  ]))
+  
   const [context] = useState(
-    new API<AppState>(null, createRootReducer(CIMEReducers))
+    api
   );
 
   const [merged, setMerged] = React.useState(merge(clone(DEFAULT_CIME_APP_CONFIG), props))
