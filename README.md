@@ -267,7 +267,7 @@ To start the server you need to create a conda environment with the following de
 - joblib=0.17.0
 - bottle-beaker=0.1.3
 
-A `requirements.txt` is provided in the folder `backend`.
+A `requirements.txt` is provided in the folder `Application/backend`.
 
 Using this environment you only have to start the server by running 
 ```bash
@@ -277,10 +277,10 @@ python backend-cime-dist.py
 ## Run Application with Docker
 To combine frontend and backend in a docker image we provide a Dockerfile. 
 Before creating the image you have to adjust some settings:
-- In the `backend/backend-cime-dist.py` the `response_header_origin_localhost` constant needs to be set to “http://localhost:8080”
-- In the `backend/backend-cime-dist.py` the line that starts the server needs to be replaced by `run(app=app, host='0.0.0.0', port=8080)`
-- In the `src/utils/backend-connect.ts` the `BASE_URL` constant needs to be set to an empty string (i.e. `“”`)
-- In the `src/utils/frontend-connect.ts` the `BASE_PATH` constant needs to be set to an empty string (i.e. `“”`)
+- In the `Application/backend/backend-cime-dist.py` the `response_header_origin_localhost` constant needs to be set to “http://localhost:8080”
+- In the `Application/backend/backend-cime-dist.py` the line that starts the server needs to be replaced by `run(app=app, host='0.0.0.0', port=8080)`
+- In the `Application/src/utils/backend-connect.ts` the `BASE_URL` constant needs to be set to an empty string (i.e. `“”`)
+- In the `Application/src/utils/frontend-connect.ts` the `BASE_PATH` constant needs to be set to an empty string (i.e. `“”`)
 
 In the root folder of the project, you can create the docker image by running
 ```bash
