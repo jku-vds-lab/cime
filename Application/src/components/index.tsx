@@ -83,6 +83,7 @@ import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import { DatasetType } from "./Utility/Data/DatasetType";
 
+import { version } from '../../package.json';
 
 /**
  * A TabPanel with a fixed height of 100vh which is needed for content with a scrollbar to work.
@@ -195,6 +196,8 @@ var Application = connector(class extends React.Component<Props, any> {
 
   constructor(props) {
     super(props)
+
+    console.log("CIME version:", version);
 
     this.state = {
       fileDialogOpen: true

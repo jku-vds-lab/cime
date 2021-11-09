@@ -1,6 +1,6 @@
 {
   "name": "cime",
-  "version": "1.0.0",
+  "version": "0.1.18",
   "main": "index.js",
   "author": "Christina Humer",
   "license": "BSD 3-Clause License",
