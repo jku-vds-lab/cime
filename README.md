@@ -5,7 +5,7 @@
 This repository includes:
 * The implementation of CIME
     * Front-end web application written in TypeScript using React
-    * [Back-end](backend/) python server
+    * [Back-end](Application/backend/) python server
 * [Documentation](#documentation)
 * [Installation](#installation)
 * [How to cite?](#how-to-cite)
@@ -14,7 +14,7 @@ Check out a [preprint of our paper](TODO) for further details about the implemen
 
 Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which includes the datasets used in the use cases.
 
-Check out the [SDF generation example](TODO) if you want to try CIME with your own dataset.
+Check out the [SDF generation example](Examples/ExampleSDFGeneration.py) if you want to try CIME with your own dataset.
 
 Check out the [Example datasets](https://www.doi.org/10.17605/OSF.IO/KNS6M) from the paper's use cases.
 
@@ -34,7 +34,7 @@ This section explains the general layout of the tool and the basic controls with
 ### View Components
 - Left Menu Drawer (orange): Shows tabs that contain different groups of actions
 - Center View (yellow): Shows the current projection and allows the user to interact with the low dimensional projection of the data items
-- Table Component (blue): Can be dragged up from the bottom of the window to show a LineUp (https://lineup.js.org/) table of the high dimensional space of the data items
+- Table Component (blue): Can be dragged up from the bottom of the window to show a [LineUp](https://lineup.js.org/) table of the high dimensional space of the data items
 
 <img src="https://user-images.githubusercontent.com/45741696/112500382-9d5b3100-8d88-11eb-9b2e-8229ea1daf4c.png" width="700">
 
@@ -64,7 +64,7 @@ If a user wants to upload a custom file they have to use the file format that is
 
 
 ### Data Format
-Data is handed to the system using a Structure-Data File (SDF) (https://en.wikipedia.org/wiki/Chemical_table_file#SDF) that contains a collection of chemical compounds and additional properties that can be customized.
+Data is handed to the system using a [Structure-Data File (SDF)](https://en.wikipedia.org/wiki/Chemical_table_file#SDF) that contains a collection of chemical compounds and additional properties that can be customized.
 New files are first uploaded to the python backend that runs with Bottle (https://bottlepy.org/docs/dev/) and then processed with the help of the RDKit framework (https://www.rdkit.org/).
 For big files, the initial upload and preprocessing can take several minutes. If the files are already uploaded, it is much faster.
 
@@ -198,7 +198,7 @@ It is recommended to use this feature in the external window only because there 
 
 
 ## LineUp
-For high-dimensional data exploration, we included a LineUp table (https://lineup.js.org/) that can be viewed on-demand. 
+For high-dimensional data exploration, we included a [LineUp table](https://lineup.js.org/) that can be viewed on-demand. 
 To show the table you need to drag the component from the bottom of the window to increase the size of the table. 
 
 <img src="https://user-images.githubusercontent.com/45741696/112501102-3e49ec00-8d89-11eb-9b1c-513e49321cae.gif" width="600">
@@ -236,13 +236,9 @@ Use a git tool to clone this repository to your computer.
 ```bash
 git clone https://github.com/jku-vds-lab/cime.git
 ```
-Then navigate to this folder in a terminal using
+Then navigate to the Application folder in a terminal using
 ```bash
-cd cime
-```
-Checkout the main branch
-```bash
-git checkout main
+cd cime/Application/
 ```
 and run the command to install the required packages
 ```bash
@@ -258,7 +254,7 @@ Whenever a file is changed while this server is running, it will automatically b
 To start the application you just need to start the `index.html` locally. The easiest way to this is by using the live server provided by either Atom or Visual Studio Code.
 
 ## Backend
-In the backend, a Python server runs with the Bottle Framework (https://bottlepy.org/docs/dev/). Many features that relate to the “Chem” aspects of the Projection Space Explorer are only available if the backend is running. Also, the feature to derive groups from clustering is only available in the backend.
+In the backend, a Python server runs with the [Bottle Framework](https://bottlepy.org/docs/dev/). Many features that relate to the “Chem” aspects of the Projection Space Explorer are only available if the backend is running. Also, the feature to derive groups from clustering is only available in the backend.
 
 To start the server you need to create a conda environment with the following dependencies:
 - bottle=0.12.18
