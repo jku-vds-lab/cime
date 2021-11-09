@@ -344,7 +344,7 @@ def smiles_list_to_imgs():
         if len(mol_lst) > 1:
             patt = get_mcs(mol_lst)
 
-            TemplateAlign.rdDepictor.Compute2DCoords(patt)
+            # TemplateAlign.rdDepictor.Compute2DCoords(patt)
         else:
             patt = Chem.MolFromSmiles("*")
 
@@ -355,6 +355,16 @@ def smiles_list_to_imgs():
             dataset = get_cime_dbo().get_dataset_by(id=id)
             df = dataset.dataframe if dataset else None
 
+        if doAlignment:
+            # set the coordinates of the core pattern based on the coordinates of the first molecule     
+            match = mol_lst[0].GetSubstructMatch(patt)
+            conf = Chem.Conformer(patt.GetNumAtoms())
+            TemplateAlign.rdDepictor.Compute2DCoords(mol_lst[0])
+            mconf = mol_lst[0].GetConformer(0)
+            for i,aidx in enumerate(match):
+                conf.SetAtomPosition(i,mconf.GetAtomPosition(aidx))
+            patt.AddConformer(conf)
+
         img_lst = []
         for mol in mol_lst:
             if doAlignment:  # if user disables alignment, skip
@@ -362,8 +372,7 @@ def smiles_list_to_imgs():
                 if(patt and Chem.MolToSmiles(patt) != "*"):
                     TemplateAlign.rdDepictor.Compute2DCoords(mol)
                     match = mol.GetSubstructMatch(patt)
-                    TemplateAlign.AlignMolToTemplate2D(
-                        mol, patt, match=match, clearConfs=True)
+                    TemplateAlign.AlignMolToTemplate2D(mol,patt,match=match,clearConfs=True)
             if current_rep == "Common Substructure":
                 img_lst.append(mol_to_base64_highlight_substructure(
                     mol, patt, width=width))
