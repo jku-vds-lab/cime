@@ -3,3 +3,12 @@ body {
   padding: 0px;
   overflow: hidden;
 }
+
+
+#root {
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  position: absolute;
+}

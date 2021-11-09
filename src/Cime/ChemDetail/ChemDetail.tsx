@@ -15,6 +15,7 @@ import {
   InputLabel,
   Paper,
   Popover,
+  Slider,
   Switch,
   TextField,
   Tooltip,
@@ -221,7 +222,7 @@ export const ChemLegendParent = connector_Chem(function (
 
   if (props.aggregate) {
     return (
-      <Box className={"ParentChem"} paddingBottom={3}>
+      <Box className={"ParentChem"}>
         {props.aggregate && (
           <Box paddingLeft={2} paddingRight={2}>
             <Tooltip title="Summary Settings">
@@ -710,7 +711,7 @@ const ImageView = connector_Img(function ({
             x["__meta__"] &&
             hoverState.data["__meta__"] &&
             x["__meta__"]["meshIndex"] ==
-              hoverState.data["__meta__"]["meshIndex"]
+            hoverState.data["__meta__"]["meshIndex"]
         );
         if (idx >= 0 && imgList.length > 0) {
           for (const i in imgList) {
@@ -819,133 +820,160 @@ const SettingsPopover = connector_settings(function ({
     >
       <div>
         <Paper style={{ padding: 10, minWidth: 300 }}>
-          <FormGroup>
-            <Button
-              size="small"
-              variant="outlined"
-              aria-label={"Refresh Representation List"}
-              onClick={() => refreshRepList(true)}
-            >
-              <RefreshIcon />
-              Refresh Representation List
-            </Button>
-            <Typography variant="subtitle2" gutterBottom>
-              RDKit Settings
-            </Typography>
+          <Grid container spacing={2} direction='column' justifyContent='stretch'
+            sx={{
+              '& .MuiTextField-root': { width: '200px' },
+            }}>
+            <Grid item>
+              <Button
+                size="small"
+                variant="outlined"
+                aria-label={"Refresh Representation List"}
+                onClick={() => refreshRepList(true)}
+              >
+                <RefreshIcon />
+                Refresh Representation List
+              </Button>
+            </Grid>
+
+            <Grid item>
+              <Typography variant="subtitle2" gutterBottom>
+                RDKit Settings
+              </Typography>
+            </Grid>
 
             {/* https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/Draw/SimilarityMaps.py */}
             {/* how many contour lines should be drawn [0;inf] */}
-            <FormControl>
-              <InputLabel shrink htmlFor="contourLinesInput">
-                Contour Lines{" "}
-                <Tooltip title="Number of Contour Lines [0; &infin;] &isin; &#8469;">
-                  <InfoIcon fontSize="small"></InfoIcon>
-                </Tooltip>
-              </InputLabel>
-              <Input
-                id="contourLinesInput"
+
+            <Grid item container alignItems='center'>
+              <TextField
+                label="Contour Lines"
                 type="number"
+                InputLabelProps={{
+                  shrink: true
+                }}
                 value={rdkitSettings.contourLines}
                 onChange={(event) => {
                   let val = parseInt(event.target.value);
                   if (isNaN(val)) setContourLines(event.target.value);
                   else setContourLines(Math.max(val, 0));
                 }}
+
               />
-            </FormControl>
+
+              <div style={{ flexGrow: 1 }}></div>
+              <Tooltip title="Number of Contour Lines [0; &infin;] &isin; &#8469;">
+                <InfoIcon fontSize="small"></InfoIcon>
+              </Tooltip>
+            </Grid>
 
             {/* scale tells the programm about how to scale the weights [-1;inf]; default is -1 which means that it is inherted by the algorithm*/}
-            <FormControl>
-              <InputLabel shrink htmlFor="ScaleInput">
-                Scale{" "}
-                <Tooltip title="Weight Scale [-1; &infin;] &isin; &#8477;">
-                  <InfoIcon fontSize="small"></InfoIcon>
-                </Tooltip>
-              </InputLabel>
-              <Input
-                id="ScaleInput"
+            <Grid item container alignItems='center'>
+              <TextField
+                label="Scale"
                 type="number"
+                InputLabelProps={{
+                  shrink: true
+                }}
                 value={rdkitSettings.scale}
                 onChange={(event) => {
                   let val = parseFloat(event.target.value);
                   if (isNaN(val)) setScale(event.target.value);
                   else setScale(Math.max(val, -1));
                 }}
+
               />
-            </FormControl>
+
+              <div style={{ flexGrow: 1 }}></div>
+              <Tooltip title="Weight Scale [-1; &infin;] &isin; &#8477;"><InfoIcon fontSize="small"></InfoIcon></Tooltip>
+            </Grid>
 
             {/* sigma is for gaussian ]0;~0.2?]; default 0 means that the algorithm infers the value from the weights */}
-            <FormControl>
-              <InputLabel shrink htmlFor="SigmaInput">
-                Sigma{" "}
-                <Tooltip title="Sigma for Gaussian ]0; &infin;] &isin; &#8477;. Default of 0 signals the algorithm to infer the value.">
-                  <InfoIcon fontSize="small"></InfoIcon>
-                </Tooltip>
-              </InputLabel>
-              <Input
-                id="SigmaInput"
+            <Grid item container alignItems='center'>
+              <TextField
+                label="Sigma"
                 type="number"
-                inputProps={{ step: 0.1 }}
+                InputLabelProps={{
+                  shrink: true
+                }}
+                inputProps={{
+                  step: 0.1
+                }}
                 value={rdkitSettings.sigma}
                 onChange={(event) => {
                   let val = parseFloat(event.target.value);
                   if (isNaN(val)) setSigma(event.target.value);
                   else setSigma(Math.max(val, 0));
                 }}
+
               />
-            </FormControl>
 
-            <FormControlLabel
-              control={
-                <Switch
-                  color="primary"
-                  checked={rdkitSettings.showMCS}
-                  onChange={(_, value) => {
-                    setShowMCS(value);
-                  }}
-                />
-              }
-              label="Show MCS"
-            />
+              <div style={{ flexGrow: 1 }}></div>
+              <Tooltip title="Sigma for Gaussian ]0; &infin;] &isin; &#8477;. Default of 0 signals the algorithm to infer the value.">
+                <InfoIcon fontSize="small"></InfoIcon>
+              </Tooltip>
+            </Grid>
 
-            <FormControlLabel
-              control={
-                <Switch
-                  color="primary"
-                  checked={rdkitSettings.doAlignment}
-                  onChange={(_, value) => {
-                    setDoAlignment(value);
-                  }}
-                />
-              }
-              label="Align Structure"
-            />
 
-            <Typography style={{ paddingTop: 10 }} gutterBottom>
-              Image Width
-            </Typography>
-            {/**<Slider
-                        ValueLabelComponent={ValueLabelComponent}
-                        value={rdkitSettings.width}
-                        onChange={(event, new_val) => {
-                            setWidth(new_val); 
-                        }}
-                        min={50}
-                        max={500}
-                        step={10}
-                    />**/}
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Switch
+                    color="primary"
+                    checked={rdkitSettings.showMCS}
+                    onChange={(_, value) => {
+                      setShowMCS(value);
+                    }}
+                  />
+                }
+                label="Show MCS"
+              />
+            </Grid>
 
-            <Button
-              style={{ marginTop: 3, maxWidth: 150 }}
-              size="small"
-              variant="outlined"
-              onClick={() => {
-                setRefresh((rdkitSettings.refresh += 1));
-              }}
-            >
-              Apply Settings
-            </Button>
-          </FormGroup>
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Switch
+                    color="primary"
+                    checked={rdkitSettings.doAlignment}
+                    onChange={(_, value) => {
+                      setDoAlignment(value);
+                    }}
+                  />
+                }
+                label="Align Structure"
+              />
+            </Grid>
+
+            <Grid item>
+              <Typography style={{ paddingTop: 10 }} gutterBottom>
+                Image Width
+              </Typography>
+
+              <Slider
+                value={rdkitSettings.width}
+                onChange={(event, new_val) => {
+                  setWidth(new_val);
+                }}
+                min={50}
+                max={500}
+                step={10}
+              />
+            </Grid>
+
+            <Grid item>
+              <Button
+                style={{ marginTop: 3, maxWidth: 150 }}
+                size="small"
+                variant="outlined"
+                onClick={() => {
+                  setRefresh((rdkitSettings.refresh += 1));
+                }}
+              >
+                Apply Settings
+              </Button>
+            </Grid>
+          </Grid>
         </Paper>
       </div>
     </Popover>

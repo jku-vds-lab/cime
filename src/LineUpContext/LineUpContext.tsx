@@ -38,7 +38,7 @@ import { TestColumn } from "./LineUpClasses/TestColumn";
 import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
 import { AppState } from "../State/Store";
 import * as d3v5 from "d3v5";
-var isEqual = require('lodash.isequal');
+import isEqual from 'lodash/isEqual'
 
 /**
  * Declares a function which maps application state to component properties (by name)

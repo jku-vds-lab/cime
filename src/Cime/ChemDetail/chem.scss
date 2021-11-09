@@ -3,15 +3,29 @@
   // width: 270px;
   // height: 65vh;
   overflow-x: scroll;
-  height: 100%;
+  height: 100px;
+  flex-grow: 1;
 }
+
+
 .portalSummary .chemComponents {
   width: 100%;
   height: 100%;
+  // width: 270px;
+  // height: 65vh;
+  overflow-x: scroll;
+  height: 100px;
+  flex-grow: 1;
+}
+
+.ParentChem {
+  display: flex;
+  flex-direction: column;
 }
 
 .portalSummary .ParentChem {
-  margin-top: 50px;
+  width: 100%;
+  height: 100%;
 }
 
 .portalSummary .ParentImg {

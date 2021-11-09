@@ -41,3 +41,25 @@ npm link projection-space-explorer
 (Note that you need to to this step AFTER the npm install step)
 
 After this step you can run your changes in PSE, then build them using the commands provided in the PSE repository.
+
+
+
+## Local Installation
+
+To run cime locally, you need to install the backend dependencies first. For this run
+
+```
+pip install -e .
+```
+
+in the backend folder and let it finish (This will also pull PSE and install the base backend). After that you can start the backend using
+
+```
+cd backend && FLASK_APP=cime FLASK_ENV=development python -m flask run
+```
+
+The frontend can simply be started using
+
+```
+npm run start
+```

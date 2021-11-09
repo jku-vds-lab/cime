@@ -7,8 +7,7 @@ import {
   DatasetType,
   IVector,
   Loader,
-  useCancellablePromise,
-  // DatasetEntry,
+  useCancellablePromise
 } from "projection-space-explorer";
 import * as d3v5 from "d3v5";
 
