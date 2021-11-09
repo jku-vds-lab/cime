@@ -18,7 +18,7 @@ def get_mcs(mol_list):
 
     # completeRingsOnly=True # there are different settings possible here
     res = rdFMCS.FindMCS(mol_list, timeout=60, matchValences=False,
-                         ringMatchesRingOnly=False, completeRingsOnly=False)
+                         ringMatchesRingOnly=True, completeRingsOnly=True)
     if(res.canceled):
         patt = Chem.MolFromSmiles("*")
     else:
