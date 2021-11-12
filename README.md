@@ -63,3 +63,11 @@ The frontend can simply be started using
 ```
 npm run start
 ```
+
+
+
+## config-override.js
+
+Note:
+
+The config-override.js contains webpack overrides that are necessary because we use symlinks with peer dependencies. It will alias the peer dependency packages to the actual node_modules folder so that each package is only 1 instance.
