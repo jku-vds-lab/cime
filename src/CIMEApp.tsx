@@ -28,6 +28,7 @@ export type CIMEAppProps = {
   config?: BaseConfig;
   features?: FeatureConfig;
   overrideComponents?: ComponentConfig;
+  pseRef?: any;
 }
 
 export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
@@ -79,6 +80,7 @@ export function CIMEApp(props: CIMEAppProps) {
     merged ? <PSEContextProvider context={CIMEAppContext}>
       <div style={{ width: '100%', height: '100%' }}>
         <Application
+          ref={props.pseRef}
           config={merged.config}
           features={merged.features}
           //@ts-ignore
