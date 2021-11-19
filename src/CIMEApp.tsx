@@ -67,37 +67,10 @@ export const DEFAULT_CIME_APP_CONFIG = {
 }
 
 
-fetch('/jku-vds-lab/cime/bundle.js', {
-  mode: 'no-cors'
-}).then((response) => response.text())
-.then(json => {
-  console.log(json)
-})
-.catch(() => {
-  console.log("wrong")
-})
+const context = new API<AppState>(undefined, createRootReducer(CIMEReducers))
 
 
 export function CIMEApp(props: CIMEAppProps) {
-  const api = new API<AppState>(null, createRootReducer(CIMEReducers))
-
-  api.store.dispatch(setDatasetEntriesAction([
-    {
-      display: "Chess: 190 Games",
-      path: "domain_5000_experiments_0.csv",
-      type: DatasetType.None
-    },
-    {
-      display: "Chess: 450 Games",
-      path: "cube1x2.csv",
-      type: DatasetType.Rubik
-    }
-  ]))
-  
-  const [context] = useState(
-    api
-  );
-
   const [merged, setMerged] = React.useState(merge(clone(DEFAULT_CIME_APP_CONFIG), props))
 
   React.useEffect(() => {
@@ -108,12 +81,14 @@ export function CIMEApp(props: CIMEAppProps) {
 
   return (
     <PSEContextProvider context={context}>
-      <Application
-      config={merged.config}
-      features={merged.features}
-      //@ts-ignore
-      overrideComponents={merged.overrideComponents}
-      />
+      <div style={{ width: '100%', height: '100%' }}>
+        <Application
+          config={merged.config}
+          features={merged.features}
+          //@ts-ignore
+          overrideComponents={merged.overrideComponents}
+        />
+      </div>
     </PSEContextProvider>
   );
 }
