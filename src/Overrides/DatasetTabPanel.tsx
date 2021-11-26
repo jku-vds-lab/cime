@@ -6,7 +6,7 @@ import {
   DialogContent,
   Typography,
 } from "@mui/material";
-import { useCancellablePromise } from "projection-space-explorer";
+import { useCancellablePromise, RootActions } from "projection-space-explorer";
 import React from "react";
 import { usePromiseTracker } from "react-promise-tracker";
 import { DatasetDrop } from "./DatasetDrop";
@@ -14,6 +14,7 @@ import { SDFLoader } from "./SDFLoader";
 import { SDFModifierDialog } from "./SDFModifierDialog";
 import { UploadedFiles } from "./UploadedFiles";
 import Loader from "react-loader-spinner";
+import { connect, ConnectedProps } from "react-redux";
 
 export const LoadingIndicatorView = (props) => {
   const { promiseInProgress } = usePromiseTracker({ area: props.area });
@@ -51,7 +52,19 @@ export const LoadingIndicatorDialog = (props) => {
   );
 };
 
-export function DatasetTabPanel({ onDataSelected }) {
+
+const mapStateToProps = (state: any) => ({
+})
+
+const mapDispatchToProps = dispatch => ({
+  setDataset: value => dispatch(RootActions.loadDataset(value))
+})
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type Props = ConnectedProps<typeof connector>
+
+export const DatasetTabPanel = connector(({ setDataset }: Props) => {
   const [entry, setEntry] = React.useState(null);
   const [openSDFDialog, setOpen] = React.useState(false);
   const [refreshUploadedFiles, setRefreshUploadedFiles] = React.useState(0);
@@ -68,7 +81,8 @@ export function DatasetTabPanel({ onDataSelected }) {
         entry,
         (dataset) => {
           //console.log("Dataset!!!", dataset);
-          onDataSelected(dataset);
+
+          setDataset(dataset);
         },
         cancellablePromise,
         modifiers,
@@ -88,7 +102,7 @@ export function DatasetTabPanel({ onDataSelected }) {
       <DatasetDrop
         onChange={(dataset) => {
           //console.log("Dataaset", dataset);
-          onDataSelected(dataset);
+          setDataset(dataset);
           setRefreshUploadedFiles(refreshUploadedFiles + 1);
         }}
         cancellablePromise={cancellablePromise}
@@ -122,4 +136,4 @@ export function DatasetTabPanel({ onDataSelected }) {
       ></SDFModifierDialog>
     </div>
   );
-}
+})

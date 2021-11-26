@@ -18,6 +18,8 @@ import { LineUpTabPanel } from "./Overrides/LineUpTabPanel";
 import { AppState, CIMEReducers } from "./State/Store";
 import merge from 'lodash/merge'
 import clone from "lodash/clone";
+import cloneDeep from 'lodash/cloneDeep'
+import { ConnectedComponent } from "react-redux";
 
 export const DEMO = false;
 
@@ -29,6 +31,7 @@ export type CIMEAppProps = {
   features?: FeatureConfig;
   overrideComponents?: ComponentConfig;
   pseRef?: any;
+  providePSEContext?: boolean;
 }
 
 export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
@@ -69,24 +72,27 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
 // TODO: @moritz We are currently using the global object directly, ideally we make it passable as prop.
 export const CIMEAppContext = new API<AppState>(undefined, createRootReducer(CIMEReducers));
 
-export function CIMEApp(props: CIMEAppProps) {
+export function CIMEApp({ providePSEContext = true, ...props }: CIMEAppProps) {
   const [merged, setMerged] = React.useState<CIMEAppProps | null>(null);
 
   React.useEffect(() => {
-    setMerged(merge(clone(DEFAULT_CIME_APP_CONFIG), props))
+    setMerged(merge(cloneDeep(DEFAULT_CIME_APP_CONFIG), props))
   }, [props.config, props.features, props.overrideComponents]);
 
-  return (
-    merged ? <PSEContextProvider context={CIMEAppContext}>
-      <div style={{ width: '100%', height: '100%' }}>
-        <Application
-          ref={props.pseRef}
-          config={merged.config}
-          features={merged.features}
-          //@ts-ignore
-          overrideComponents={merged.overrideComponents}
-        />
-      </div>
-    </PSEContextProvider> : null
+  const component = <div style={{ width: '100%', height: '100%' }}>
+    <Application
+      ref={props.pseRef}
+      config={merged?.config}
+      features={merged?.features}
+      //@ts-ignore
+      overrideComponents={merged?.overrideComponents}
+    />
+  </div>
+
+
+  return (providePSEContext ?
+    <PSEContextProvider context={CIMEAppContext}>
+      {component}
+    </PSEContextProvider> : component
   );
 }

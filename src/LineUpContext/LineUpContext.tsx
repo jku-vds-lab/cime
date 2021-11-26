@@ -32,7 +32,7 @@ import {
   setDetailVisibility,
   setHoverState,
   ShallowSet,
-  StoriesUtil,
+  AStorytelling,
 } from "projection-space-explorer";
 import { TestColumn } from "./LineUpClasses/TestColumn";
 import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
@@ -51,7 +51,7 @@ const mapStateToProps = (state: AppState) => ({
   lineUpInput_data: state.dataset?.vectors,
   lineUpInput_columns: state.dataset?.columns,
   currentAggregation: state.currentAggregation,
-  activeStory: StoriesUtil.getActive(state.stories),
+  activeStory: AStorytelling.getActive(state.stories),
   pointColorScale: state.pointColorScale,
   channelColor: state.channelColor,
   detailView: state.detailView,
