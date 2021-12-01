@@ -1,6 +1,6 @@
 # ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations
 #### Published in: under Review... ####
-#### DOI: TODO ###
+#### DOI: 10.26434/chemrxiv-2021-crpd0 ###
 
 This repository includes:
 * The implementation of CIME
@@ -10,11 +10,11 @@ This repository includes:
 * [Installation](#installation)
 * [How to cite?](#how-to-cite)
 
-Check out a [preprint of our paper](TODO) for further details about the implementation and use cases of CIME. 
+Check out a [preprint of our paper](https://doi.org/10.26434/chemrxiv-2021-crpd0) for further details about the implementation and use cases of CIME. 
 
-Check out the [DEMO website](https://jku-vds-lab.at/cime-demo) of CIME, which includes the datasets used in the use cases.
+Check out the [DEMO website](https://cime-demo.jku-vds-lab.at) of CIME, which includes the datasets used in the use cases.
 
-Check out the [SDF generation example](Examples/ExampleSDFGeneration.py) if you want to try CIME with your own dataset.
+Check out the [SDF generation examples](Examples/) if you want to try CIME with your own dataset.
 
 Check out the [Example datasets](https://www.doi.org/10.17605/OSF.IO/KNS6M) from the paper's use cases.
 
@@ -60,7 +60,7 @@ Additionally, users can load datasets that were already uploaded previously or t
 The list of uploaded files includes all SDF files that are available in the backend (from any user!) and can be deleted with the delete button next to the filename.
 The list can also be manually refreshed with the refresh button next to "Uploaded Files" (this is only necessary if another user uploads a file during a simultaneous session and the current user needs this exact file).
 
-If a user wants to upload a custom file they have to use the file format that is described in the “Data Format” subsection. We provide an [SDF generation example](TODO) to get users started with their own datasets.
+If a user wants to upload a custom file they have to use the file format that is described in the “Data Format” subsection. We provide an [SDF generation example](Examples/) to get users started with their own datasets.
 
 
 ### Data Format
@@ -294,13 +294,11 @@ The application will be available on ‘localhost:8080’.
 You can cite CIME using the following bibtex:
 
 ```bibtex
-@article{humerheberle2021cime,  
-  author={C. {Humer} and H. {Heberle} and TODO},
-  journal={TODO},   
-  title={ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations},   
-  volume={TODO},  
-  number={TODO},  
-  pages={TODO}, 
-  year={2021},  
-  doi={TODO}}
+@article{humerheberle2021cime,
+  author={Humer, Christina and Heberle, Henry and Montanari, Floriane and Wolf, Thomas and Huber, Florian and Henderson, Ryan and Heinrich, Julian and Streit, Marc},
+  journal={ChemRxiv},
+  title={{ChemInformatics Model Explorer (CIME)}: Exploratory analysis of chemical model explanations},
+  year={2021},
+  doi={10.26434/chemrxiv-2021-crpd0}
+}
 ```
