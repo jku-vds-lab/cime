@@ -231,6 +231,13 @@ The table can be used interactively with the scatter plot that represents the pr
 
 
 # Installation
+## Run Application with Docker from Docker Hub
+A docker version of CIME is available at [Docker Hub](https://hub.docker.com/r/jkuvdslab/cime) to let users quickly set up a private instance of the tool.
+```bash
+docker pull jkuvdslab/cime
+docker run -d -p 8080:8080 --detach jkuvdslab/cime
+```
+
 ## Install npm packages
 Use a git tool to clone this repository to your computer.
 ```bash
@@ -270,7 +277,7 @@ Using this environment you only have to start the server by running
 python backend-cime-dist.py
 ```
 
-## Run Application with Docker
+## Run Application with Docker from Source
 To combine frontend and backend in a docker image we provide a Dockerfile. 
 Before creating the image you have to adjust some settings:
 - In the `Application/backend/backend-cime-dist.py` the `response_header_origin_localhost` constant needs to be set to “http://localhost:8080”
