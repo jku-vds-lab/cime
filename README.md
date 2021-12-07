@@ -232,7 +232,7 @@ The table can be used interactively with the scatter plot that represents the pr
 
 # Installation
 ## Run Application with Docker from Docker Hub
-A docker version of CIME is available at [Docker Hub](https://hub.docker.com/r/jkuvdslab/cime) to let users quickly set up a private instance of the tool.
+A docker image of CIME is available at [Docker Hub](https://hub.docker.com/r/jkuvdslab/cime) to let users quickly set up a private instance of the tool.
 ```bash
 docker pull jkuvdslab/cime
 docker run -d -p 8080:8080 --detach jkuvdslab/cime
