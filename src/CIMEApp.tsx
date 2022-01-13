@@ -9,6 +9,7 @@ import {
   BaseConfig,
   FeatureConfig,
   ComponentConfig,
+  DEFAULT_UMAP_SETTINGS,
 } from "projection-space-explorer";
 import { ChemPlugin } from "./Cime/ChemPlugin";
 import { DatasetTabPanel } from "./Overrides/DatasetTabPanel";
@@ -41,10 +42,9 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
     }
   },
   features: {
-    disableEmbeddings: {
-      tsne: true,
-      forceatlas: true,
-    },
+    embeddings: [
+      {id:"umap", name:"UMAP", settings: DEFAULT_UMAP_SETTINGS},
+    ],
   },
   overrideComponents: {
     datasetTab: DatasetTabPanel,
