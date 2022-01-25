@@ -231,14 +231,34 @@ The table can be used interactively with the scatter plot that represents the pr
 
 
 # Installation
-## Run Application with Docker from Docker Hub
-A docker image of CIME is available at [Docker Hub](https://hub.docker.com/r/jkuvdslab/cime) to let users quickly set up a private instance of the tool.
+
+There are multiple ways to run CIME. Option 1 is the easiest method.
+
+## Option 1 (recommended) - Run CIME with Docker
+Once you have Docker installed, you can quickly run the following commands and have CIME ready to use.
+
+To **install** the latest version of CIME:
 ```bash
 docker pull jkuvdslab/cime
-docker run -d -p 8080:8080 --detach jkuvdslab/cime
+docker run -d -p 8080:8080 --name cime --detach jkuvdslab/cime
 ```
 
-## Install npm packages
+To **update** CIME:
+```bash
+docker rm --force cime
+docker pull jkuvdslab/cime
+docker run -d -p 8080:8080 --name cime --detach jkuvdslab/cime
+```
+
+To **uninstall** CIME:
+```bash
+docker rm --force cime
+```
+
+A docker image of CIME is available at [Docker Hub](https://hub.docker.com/r/jkuvdslab/cime).
+
+## Option 2 - Build and run CIME 
+### Install npm packages
 Use a git tool to clone this repository to your computer.
 ```bash
 git clone https://github.com/jku-vds-lab/cime.git
@@ -251,16 +271,16 @@ and run the command to install the required packages
 ```bash
 npm install
 ```
-## Build the application
+### Build the application
 There is always a valid build in the repository, but in case you want to make changes, you can use the local build server. Start it with the command
 ```bash
 npm run webpack:dev
 ```
 Whenever a file is changed while this server is running, it will automatically build a new version and deploy it in the `/dist` folder.
-## Starting the application
+### Starting the application
 To start the application you just need to start the `index.html` locally. The easiest way to this is by using the live server provided by either Atom or Visual Studio Code.
 
-## Backend
+### Backend
 In the backend, a Python server runs with the [Bottle Framework](https://bottlepy.org/docs/dev/). Many features that relate to the “Chem” aspects of the Projection Space Explorer are only available if the backend is running. Also, the feature to derive groups from clustering is only available in the backend.
 
 To start the server you need to create a conda environment with the following dependencies:
@@ -277,7 +297,7 @@ Using this environment you only have to start the server by running
 python backend-cime-dist.py
 ```
 
-## Run Application with Docker from Source
+## Option 3 - Run Application with Docker from Source
 To combine frontend and backend in a docker image we provide a Dockerfile. 
 Before creating the image you have to adjust some settings:
 - In the `Application/backend/backend-cime-dist.py` the `response_header_origin_localhost` constant needs to be set to “http://localhost:8080”
