@@ -63,7 +63,7 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
       {
         name: "lineup",
         // @ts-ignore TODO: @moritz error after I added the correct typing for DEFAULT_CIME_APP_CONFIG
-        view: LineUpContext,
+        view: <LineUpContext key='lineup'></LineUpContext>,
       },
     ],
   }

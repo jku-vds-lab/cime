@@ -128,13 +128,14 @@ export const LineUpContext = connector(function ({
   setHoverstate,
   detailView,
 }: Props) {
+    console.log(lineUpInput, lineUpInput_data, detailView)
+
   // In case we have no input, dont render at all
   if (!lineUpInput || !lineUpInput_data || !detailView.open) {
     //splitRef?.current?.setSizes([100, 0])
     return null;
   }
   let lineup_ref = React.useRef<any>();
-  console.log("test");
 
   const debouncedHighlight = React.useCallback(
     _.debounce((hover_item) => setHoverstate(hover_item, UPDATER), 200),
@@ -145,7 +146,7 @@ export const LineUpContext = connector(function ({
     if (activeStory)
       ACluster.deriveVectorLabelsFromClusters(
         data,
-        Object.values(activeStory.clusters.byId)
+        Object.values(activeStory.clusters.entities)
       );
     let lineup_data = new Array<any>();
     let columns = {};
@@ -416,7 +417,7 @@ export const LineUpContext = connector(function ({
     lineUpInput_columns,
     activeStory,
     activeStory?.clusters,
-    activeStory?.clusters?.allIds.length,
+    activeStory?.clusters?.ids.length,
     lineUpInput.update,
   ]);
 
