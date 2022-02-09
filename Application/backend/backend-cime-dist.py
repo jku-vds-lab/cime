@@ -287,8 +287,6 @@ def sdf_to_csv(filename=None, modifiers=None):
         modifier = ""
         col_name = col
         
-        if col.startswith(fingerprint_modifier):
-            has_fingerprint = True
 
         if col.startswith(tuple(descriptor_names_no_lineup)):
             modifier = '%s"noLineUp":true,'%modifier # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
@@ -304,14 +302,20 @@ def sdf_to_csv(filename=None, modifiers=None):
             #modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
             
         elif col == smiles_col or col.startswith(smiles_prefix):
-            modifier = '%s"project":false,"hideLineUp":true,"imgSmiles":true,'%modifier # this modifier tells lineup that a structure image of this smiles string should be loaded
+            modifier = '%s"hideLineUp":true,"imgSmiles":true,'%modifier # this modifier tells lineup that a structure image of this smiles string should be loaded
             
             split_col = col.split("_")
             if len(split_col) >= 2:
                 col_name = col.replace(split_col[0]+"_", "") + " (" + split_col[0] + ")"
             
+            
+        if col.startswith(fingerprint_modifier):
+            has_fingerprint = True
+        else:
+            modifier = '%s"project":false,'%modifier
+        
         if col == "ID":
-            modifier = '%s"dtype":"string","project":false,'%modifier # TODO: json crashed....
+            modifier = '%s"dtype":"string",'%modifier
         
 
         new_cols.append("%s{%s}"%(col_name,modifier[0:-1])) # remove the last comma
