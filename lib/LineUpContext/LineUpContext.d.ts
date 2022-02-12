@@ -23,7 +23,7 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
     };
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: any[];
+        selectedClusters: import("@reduxjs/toolkit").EntityId[];
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
@@ -69,7 +69,7 @@ export declare const LineUpContext: import("react-redux").ConnectedComponent<({ 
     };
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: any[];
+        selectedClusters: import("@reduxjs/toolkit").EntityId[];
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;

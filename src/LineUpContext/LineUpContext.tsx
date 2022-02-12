@@ -145,7 +145,7 @@ export const LineUpContext = connector(function ({
     if (activeStory)
       ACluster.deriveVectorLabelsFromClusters(
         data,
-        Object.values(activeStory.clusters.byId)
+        Object.values(activeStory.clusters.entities)
       );
     let lineup_data = new Array<any>();
     let columns = {};
@@ -416,7 +416,7 @@ export const LineUpContext = connector(function ({
     lineUpInput_columns,
     activeStory,
     activeStory?.clusters,
-    activeStory?.clusters?.allIds.length,
+    activeStory?.clusters?.ids.length,
     lineUpInput.update,
   ]);
 
