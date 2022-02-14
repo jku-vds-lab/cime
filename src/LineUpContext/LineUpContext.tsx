@@ -128,8 +128,6 @@ export const LineUpContext = connector(function ({
   setHoverstate,
   detailView,
 }: Props) {
-    console.log(lineUpInput, lineUpInput_data, detailView)
-
   // In case we have no input, dont render at all
   if (!lineUpInput || !lineUpInput_data || !detailView.open) {
     //splitRef?.current?.setSizes([100, 0])
@@ -291,7 +289,7 @@ export const LineUpContext = connector(function ({
     lineUpInput.lineup?.destroy();
     let lineup;
     lineup = builder.buildTaggle(lineup_ref.current);
-    console.log(lineup);
+
     if (dump) {
       lineup.restore(dump);
     }
@@ -532,7 +530,7 @@ export const LineUpContext = connector(function ({
 
   //https://github.com/lineupjs/lineup_app/blob/master/src/export.ts
   return false ? (
-    /**@ts-ignore**/
+
     <MyWindowPortal
       onClose={() => {
         lineUpInput.lineup?.destroy();

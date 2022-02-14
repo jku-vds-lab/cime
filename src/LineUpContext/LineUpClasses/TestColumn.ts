@@ -236,7 +236,6 @@ export class TestColumn extends MapColumn<number[]> {
   }
 
   getBoxPlotData(row: IDataRow): IAdvancedBoxPlotData | null {
-    console.log("getBoxPlotData");
     const data = this.getValue(row)[0]["value"];
     if (data == null) {
       return null;
@@ -245,7 +244,6 @@ export class TestColumn extends MapColumn<number[]> {
   }
 
   getRawBoxPlotData(row: IDataRow): IAdvancedBoxPlotData | null {
-    console.log("getRawBoxPlotData");
     const data = this.getRawValue(row)[0]["value"];
     if (data == null) {
       return null;
@@ -254,12 +252,10 @@ export class TestColumn extends MapColumn<number[]> {
   }
 
   getRange() {
-    console.log("getRange");
     return this.mapping.getRange(this.numberFormat);
   }
 
   getColorMapping() {
-    console.log("getColorMapping");
     return this.colorMapping.clone();
   }
 

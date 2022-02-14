@@ -22,7 +22,7 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
     };
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: string[];
+        selectedClusters: (string | number)[];
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
@@ -51,41 +51,7 @@ declare type Props = PropsFromRedux & {
 /**
  * Our component definition, by declaring our props with 'Props' we have static types for each of our property
  */
-export declare const LineUpContext: import("react-redux").ConnectedComponent<({ dataset, lineUpInput, lineUpInput_data, lineUpInput_columns, currentAggregation, channelColor, setCurrentAggregation, setLineUpInput_lineup, setLineUpInput_visibility, onFilter, activeStory, pointColorScale, setHoverstate, detailView, }: Props) => JSX.Element, import("react-redux").Omit<{
-    dataset: import("projection-space-explorer").Dataset;
-    lineUpInput: import("../State/LineUpInputDuck").LineUpType;
-    lineUpInput_data: import("projection-space-explorer").IVector[];
-    lineUpInput_columns: {
-        [name: string]: {
-            distinct: any;
-            isNumeric: boolean;
-            metaInformation: any;
-            featureType: import("projection-space-explorer").FeatureType;
-            range: any;
-            featureLabel: string;
-            project: boolean;
-        };
-    };
-    currentAggregation: {
-        aggregation: number[];
-        selectedClusters: string[];
-        source: "sample" | "cluster";
-    };
-    activeStory: import("projection-space-explorer").IBook;
-    pointColorScale: any;
-    channelColor: any;
-    detailView: {
-        open: boolean;
-        active: string;
-    };
-} & {
-    setCurrentAggregation: (samples: number[]) => any;
-    setLineUpInput_visibility: (visibility: any) => any;
-    setLineUpInput_lineup: (input: any) => any;
-    setHoverstate: (state: any, updater: any) => any;
-} & {
-    onFilter: any;
-}, "lineUpInput" | "dataset" | "setCurrentAggregation" | "setHoverstate" | "lineUpInput_data" | "lineUpInput_columns" | "currentAggregation" | "channelColor" | "setLineUpInput_lineup" | "setLineUpInput_visibility" | "activeStory" | "pointColorScale" | "detailView">>;
+export declare const LineUpContext: import("react-redux").ConnectedComponent<({ dataset, lineUpInput, lineUpInput_data, lineUpInput_columns, currentAggregation, channelColor, setCurrentAggregation, setLineUpInput_lineup, setLineUpInput_visibility, onFilter, activeStory, pointColorScale, setHoverstate, detailView, }: Props) => JSX.Element, Pick<Props, "onFilter">>;
 export interface IStructureFilter extends IStringFilter {
     filter: string;
     valid: Set<string>;

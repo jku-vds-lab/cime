@@ -8,7 +8,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "noEmit": false,
-    "jsx": "react-jsx"
+    "jsx": "react",
+    "preserveSymlinks": true
   },
   "exclude": ["node_modules", "./src/index.tsx"],
   "files": ["./src/export.ts", "./src/tsd.d.ts"]

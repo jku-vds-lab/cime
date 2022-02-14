@@ -32,32 +32,6 @@ declare type Props_Chem_Parent = PropsFromRedux_Chem & {
     diff?: boolean;
     selection_ref?: any[];
 };
-export declare const ChemLegendParent: import("react-redux").ConnectedComponent<(props: Props_Chem_Parent) => JSX.Element, import("react-redux").Omit<{
-    dataset: import("projection-space-explorer").Dataset;
-    hoverSettings: {
-        windowMode: any;
-    };
-    rdkitSettings: import("../../State/RDKitSettingsDuck").RDKitSettingsType;
-    columns: {
-        [name: string]: {
-            distinct: any;
-            isNumeric: boolean;
-            metaInformation: any;
-            featureType: import("projection-space-explorer").FeatureType;
-            range: any;
-            featureLabel: string;
-            project: boolean;
-        };
-    };
-} & {
-    setCurrentAggregation: (samples: number[]) => any;
-    setHoverstate: (state: any, updater: any) => any;
-} & {
-    selection: any[];
-    aggregate: boolean;
-    mcs_only?: boolean;
-    diff?: boolean;
-    selection_ref?: any[];
-}, "columns" | "rdkitSettings" | "dataset" | "hoverSettings" | "setCurrentAggregation" | "setHoverstate">>;
+export declare const ChemLegendParent: import("react-redux").ConnectedComponent<(props: Props_Chem_Parent) => JSX.Element, Pick<Props_Chem_Parent, "selection" | "aggregate" | "mcs_only" | "diff" | "selection_ref">>;
 export {};
 //# sourceMappingURL=ChemDetail.d.ts.map
