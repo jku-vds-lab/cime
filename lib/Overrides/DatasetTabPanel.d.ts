@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import { ConnectedProps } from "react-redux";
 export declare const LoadingIndicatorView: (props: any) => JSX.Element;
 export declare const LoadingIndicatorDialog: (props: any) => JSX.Element;
