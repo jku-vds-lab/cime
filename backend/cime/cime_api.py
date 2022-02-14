@@ -35,12 +35,13 @@ def tryParseFloat(value):
         return value
 
 
-def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule'):
+def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule', first_only=False):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
     _log.info('Starting processing of SDF file')
     records = []
     rep_list = set()
+
     # TODO: Check if parallelization is possible?
     with Chem.ForwardSDMolSupplier(file) as suppl:
         i = 0
@@ -81,8 +82,24 @@ def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Mo
             if i % 1000 == 0:
                 _log.info(f'Processed {i} entries')
 
-    _log.info(f'Finished processing of {i} entries')
+            if first_only:
+                break
+
+    has_fingerprint = False
     frame = pd.DataFrame(records)
+    for col in frame.columns:
+        if col.startswith(fingerprint_modifier):
+            has_fingerprint = True
+            break
+
+    if not has_fingerprint:
+        all_smiles = frame[smiles_col]
+        fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
+        fps = fps.rename(mapper=lambda a: f'fingerprint_{a}', axis='columns')
+        frame = frame.join(fps)
+
+    _log.info(f'Finished processing of {i} entries')
+    
     return frame, list(rep_list)
 
 
@@ -135,6 +152,7 @@ def upload_sdf():
 
     frame, rep_list = sdf_to_df(
         file, smiles_col_name=smiles_col, mol_col_name=mol_col)
+
 
     # TODO: Define format of saved file, i.e. include user?
     saved = get_cime_dbo().save_file({

@@ -134,7 +134,6 @@ export const LineUpContext = connector(function ({
     return null;
   }
   let lineup_ref = React.useRef<any>();
-  console.log("test");
 
   const debouncedHighlight = React.useCallback(
     _.debounce((hover_item) => setHoverstate(hover_item, UPDATER), 200),
@@ -145,7 +144,7 @@ export const LineUpContext = connector(function ({
     if (activeStory)
       ACluster.deriveVectorLabelsFromClusters(
         data,
-        Object.values(activeStory.clusters.byId)
+        Object.values(activeStory.clusters.entities)
       );
     let lineup_data = new Array<any>();
     let columns = {};
@@ -290,7 +289,7 @@ export const LineUpContext = connector(function ({
     lineUpInput.lineup?.destroy();
     let lineup;
     lineup = builder.buildTaggle(lineup_ref.current);
-    console.log(lineup);
+
     if (dump) {
       lineup.restore(dump);
     }
@@ -416,7 +415,7 @@ export const LineUpContext = connector(function ({
     lineUpInput_columns,
     activeStory,
     activeStory?.clusters,
-    activeStory?.clusters?.allIds.length,
+    activeStory?.clusters?.ids.length,
     lineUpInput.update,
   ]);
 
@@ -531,7 +530,7 @@ export const LineUpContext = connector(function ({
 
   //https://github.com/lineupjs/lineup_app/blob/master/src/export.ts
   return false ? (
-    /**@ts-ignore**/
+
     <MyWindowPortal
       onClose={() => {
         lineUpInput.lineup?.destroy();

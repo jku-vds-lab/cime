@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { ConnectedProps } from "react-redux";
 declare const connector: import("react-redux").InferableComponentEnhancerWithProps<{
     setLineUp_dump: (dump: any) => any;
@@ -9,12 +8,6 @@ declare type Props = PropsFromRedux & {
     openDialog: any;
     setOpenDumpDialog: any;
 };
-export declare const LineUpDumpDialog: import("react-redux").ConnectedComponent<({ openDialog, setOpenDumpDialog, setLineUp_dump, setLineUp_visibility, }: Props) => JSX.Element, import("react-redux").Omit<{
-    setLineUp_dump: (dump: any) => any;
-    setLineUp_visibility: (vis: any) => any;
-} & {
-    openDialog: any;
-    setOpenDumpDialog: any;
-}, "setLineUp_dump" | "setLineUp_visibility">>;
+export declare const LineUpDumpDialog: import("react-redux").ConnectedComponent<({ openDialog, setOpenDumpDialog, setLineUp_dump, setLineUp_visibility, }: Props) => JSX.Element, Pick<Props, "openDialog" | "setOpenDumpDialog">>;
 export {};
 //# sourceMappingURL=LineUpDumpDialog.d.ts.map
