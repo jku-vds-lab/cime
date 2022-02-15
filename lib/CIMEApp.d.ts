@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import { API, BaseConfig, FeatureConfig, ComponentConfig } from "projection-space-explorer";
 import { AppState } from "./State/Store";
 export declare const DEMO = false;

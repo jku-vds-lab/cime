@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import "./chem.scss";
 import { ConnectedProps } from "react-redux";
 declare const connector_Chem: import("react-redux").InferableComponentEnhancerWithProps<{
