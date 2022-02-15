@@ -291,7 +291,7 @@ export const LineUpContext = connector(function ({
     lineUpInput.lineup?.destroy();
     let lineup;
     lineup = builder.buildTaggle(lineup_ref.current);
-    console.log(lineup);
+
     if (dump) {
       lineup.restore(dump);
     }
@@ -532,7 +532,7 @@ export const LineUpContext = connector(function ({
 
   //https://github.com/lineupjs/lineup_app/blob/master/src/export.ts
   return false ? (
-    /**@ts-ignore**/
+
     <MyWindowPortal
       onClose={() => {
         lineUpInput.lineup?.destroy();

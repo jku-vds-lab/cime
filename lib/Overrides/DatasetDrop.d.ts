@@ -1,4 +1,3 @@
-/// <reference types="react" />
 export declare const DatasetDrop: ({ onChange, cancellablePromise, abort_controller, }: {
     onChange: any;
     cancellablePromise: any;
