@@ -18,9 +18,7 @@ import { LineUpContext } from "./LineUpContext";
 import { LineUpTabPanel } from "./Overrides/LineUpTabPanel";
 import { AppState, CIMEReducers } from "./State/Store";
 import merge from 'lodash/merge'
-import clone from "lodash/clone";
 import cloneDeep from 'lodash/cloneDeep'
-import { ConnectedComponent } from "react-redux";
 
 export const DEMO = false;
 
