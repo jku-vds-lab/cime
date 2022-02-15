@@ -594,13 +594,15 @@ const base_color = "#c1c1c1";
 function buildLineup(cols, data, pointColorScale, channelColor) {
   // console.log(channelColor) //TODO: update lineup colorscale, if sth changes; TODO: do this for all columns, not just groupLabel
   let groupLabel_cat_color;
-  if (channelColor.key === PrebuiltFeatures.ClusterLabel) {
+  if (channelColor && pointColorScale && channelColor.key === PrebuiltFeatures.ClusterLabel) {
+     // console.log(pointColorScale)
     let groupLabel_mapping = new DiscreteMapping(
       pointColorScale,
       new ShallowSet(
         data.map((vector) => vector[PrebuiltFeatures.ClusterLabel])
       )
     );
+    //console.log(groupLabel_mapping)
     groupLabel_cat_color = groupLabel_mapping.values
       .filter((cat) => cat && cat !== "")
       .map((cat) => {
@@ -652,39 +654,6 @@ function buildLineup(cols, data, pointColorScale, channelColor) {
     } else {
       builder.deriveColumns(i);
     }
-
-    // else if (typeof col.featureType !== 'undefined') {
-    //     switch (col.featureType) {
-    //         case FeatureType.Categorical:
-    //             if (data && col.distinct && col.distinct.length / data.length <= 0.5) {
-    //                 builder.column(LineUpJS.buildCategoricalColumn(i).custom("visible", show));
-    //             } else {
-    //                 builder.column(LineUpJS.buildStringColumn(i).width(50).custom("visible", show));
-    //             }
-    //             break;
-    //         case FeatureType.Quantitative:
-    //             builder.column(LineUpJS.buildNumberColumn(i).numberFormat(".2f").custom("visible", show).color(base_color));//.renderer("myBarCellRenderer")); //.renderer("numberWithValues")
-    //             break;
-    //         case FeatureType.Date:
-    //             builder.column(LineUpJS.buildDateColumn(i).custom("visible", show).color(base_color));
-    //             break;
-    //         default:
-    //             builder.column(LineUpJS.buildStringColumn(i).width(50).custom("visible", show).color(base_color));
-    //             break;
-
-    //     }
-    // } else {
-    //     if (col.isNumeric) {
-    //         builder.column(LineUpJS.buildNumberColumn(i, [col.range.min, col.range.max]).numberFormat(".2f").custom("visible", show).color(base_color));//.renderer("myBarCellRenderer"));
-    //     } else if (col.distinct)
-    //         if (data && col.distinct.length / data.length <= 0.5) // if the ratio between distinct categories and nr of data points is less than 1:2, the column is treated as a string
-    //             builder.column(LineUpJS.buildCategoricalColumn(i).custom("visible", show));
-    //         else
-    //             builder.column(LineUpJS.buildStringColumn(i).width(50).custom("visible", show).color(base_color));
-    //     else
-    //         builder.column(LineUpJS.buildStringColumn(i).width(50).custom("visible", show).color(base_color));
-    // }
-    // }
   }
 
   // builder.deriveColumns([]);
