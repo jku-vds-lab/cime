@@ -9,6 +9,7 @@ import base64
 import pandas as pd
 import time
 import logging
+import zlib
 from .mol import mol_to_base64_highlight_importances, get_mcs, mol_to_base64_highlight_substructure, smiles_to_base64
 
 _log = logging.getLogger(__name__)
@@ -73,8 +74,7 @@ def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Mo
             # Add property mol
             if mol_col_name is not None:
                 # TODO: we only use that once in the code to create the fingerprints/create images, that could be done from the smiles as well?
-                row[mol_col_name] = pickle.dumps(PropertyMol(mol), protocol=4)
-                pass
+                row[mol_col_name] = zlib.compress(pickle.dumps(PropertyMol(mol), protocol=4), level=zlib.Z_BEST_COMPRESSION)
 
             records.append(row)
 
@@ -99,7 +99,6 @@ def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Mo
         frame = frame.join(fps)
 
     _log.info(f'Finished processing of {i} entries')
-    
     return frame, list(rep_list)
 
 
@@ -109,7 +108,7 @@ def get_uploaded_files_list():
     return jsonify([{'id': d.id, 'name': d.name} for d in get_cime_dbo().get_datasets()])
 
 
-@ cime_api.route('/delete_file/<id>', methods=['GET'])
+@cime_api.route('/delete_file/<id>', methods=['GET'])
 def delete_uploaded_file(id):
     # TODO: Is this required?
     if id == "test.sdf" or id == "test":
@@ -123,9 +122,7 @@ def delete_uploaded_file(id):
     return {"deleted": "true" if deleted else "false"}
 
 
-# TODO
-# @cime_api.route('/get_atom_rep_list', methods=["GET"])
-@ cime_api.route('/get_atom_rep_list/<id>', methods=["GET"])
+@cime_api.route('/get_atom_rep_list/<id>', methods=["GET"])
 def get_atom_rep_list(id):
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
@@ -140,7 +137,7 @@ def get_atom_rep_list(id):
     # return {"rep_list": rep_list}
 
 
-@ cime_api.route('/upload_sdf', methods=['POST'])
+@cime_api.route('/upload_sdf', methods=['POST'])
 def upload_sdf():
     _log.info(f'Received new file to upload')
     file = request.files.get("myFile")
@@ -167,10 +164,8 @@ def upload_sdf():
     }
 
 
-# TODO: WE REMOVED THIS ROUTE
-# @cime_api.route('/get_csv/', methods=['GET'])
-@ cime_api.route('/get_csv/<id>/', methods=['GET'])
-@ cime_api.route('/get_csv/<id>/<modifiers>', methods=['GET'])
+@cime_api.route('/get_csv/<id>/', methods=['GET'])
+@cime_api.route('/get_csv/<id>/<modifiers>', methods=['GET'])
 def sdf_to_csv(id, modifiers=None):
     start_time = time.time()
     if modifiers:
@@ -186,9 +181,6 @@ def sdf_to_csv(id, modifiers=None):
     frame = dataset.dataframe
     all_smiles = frame[smiles_col]
 
-    # mols = frame[mol_col]
-    # frame = frame.drop(columns=[mol_col])
-
     # sort such that the name column comes first and the smiles column comes second
     sm = frame[smiles_col]
     name = frame["ID"]
@@ -201,7 +193,6 @@ def sdf_to_csv(id, modifiers=None):
     for col in frame.columns:
         modifier = ""
         col_name = col
-
 
         if col.startswith(tuple(descriptor_names_no_lineup)):
             # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
@@ -234,7 +225,7 @@ def sdf_to_csv(id, modifiers=None):
             has_fingerprint = True
         else:
             modifier = '%s"project":false,'%modifier
-        
+
         if col == "ID":
             modifier = '%s"dtype":"string",' % modifier
 
@@ -265,7 +256,7 @@ def sdf_to_csv(id, modifiers=None):
     return csv_buffer.getvalue()
 
 
-@ cime_api.route('/get_difference_highlight', methods=['OPTIONS', 'POST'])
+@cime_api.route('/get_difference_highlight', methods=['OPTIONS', 'POST'])
 def smiles_to_difference_highlight():
     if request.method == 'POST':
         smilesA = request.form.get("smilesA").split(",")
@@ -325,7 +316,7 @@ def smiles_to_difference_highlight():
         return {}
 
 
-@ cime_api.route('/get_mol_img', methods=['OPTIONS', 'POST'])
+@cime_api.route('/get_mol_img', methods=['OPTIONS', 'POST'])
 def smiles_to_img_post():
     if request.method == 'POST':
         smiles = request.form.get("smiles")
@@ -335,7 +326,7 @@ def smiles_to_img_post():
         return {}
 
 
-@ cime_api.route('/get_mol_imgs', methods=['OPTIONS', 'POST'])
+@cime_api.route('/get_mol_imgs', methods=['OPTIONS', 'POST'])
 def smiles_list_to_imgs():
     if request.method == 'POST':
         smiles_list = request.form.getlist("smiles_list")
@@ -405,7 +396,7 @@ def smiles_list_to_imgs():
         return {}
 
 
-@ cime_api.route('/get_common_mol_img', methods=['OPTIONS', 'POST'])
+@cime_api.route('/get_common_mol_img', methods=['OPTIONS', 'POST'])
 def smiles_list_to_common_substructure_img():
     if request.method == 'POST':
         smiles_list = request.form.getlist("smiles_list")
@@ -436,7 +427,7 @@ def smiles_list_to_common_substructure_img():
 
 
 # --------- search & filter ---------
-@ cime_api.route('/get_substructure_count', methods=['OPTIONS', 'POST'])
+@cime_api.route('/get_substructure_count', methods=['OPTIONS', 'POST'])
 def smiles_list_to_substructure_count():
     if request.method == 'POST':
         smiles_list = request.form.get("smiles_list").split(",")

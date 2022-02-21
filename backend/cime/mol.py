@@ -5,6 +5,8 @@ from rdkit.Chem.Draw import SimilarityMaps
 from io import BytesIO
 import base64
 import pickle
+import zlib
+import logging
 
 
 def get_mcs(mol_list):
@@ -89,24 +91,14 @@ def mol_to_base64_highlight_importances(df, mol_aligned, patt, current_rep, cont
         sigma = None
 
     if df is not None:
-        if df is not None:
-            d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(
-                width, width)  # MolDraw2DSVG
-            smiles = Chem.MolToSmiles(mol_aligned)
-            mol = pickle.loads(df[df[smiles_col] == smiles].iloc[0][mol_col])
-            #mol = df.set_index(smiles_col).loc[smiles][mol_col]
-            #weights = [mol.GetAtomWithIdx(i).GetDoubleProp(current_rep) for i in range(mol.GetNumAtoms())]
-            weights = [float(prop) for prop in re.split(
-                ' |\n', mol.GetProp(current_rep))]
-            fig = SimilarityMaps.GetSimilarityMapFromWeights(mol_aligned, weights, size=(
-                width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma)
-
-            #buffered = BytesIO()
-            # fig.savefig(buffered, format="JPEG", bbox_inches = matplotlib.transforms.Bbox([[0, 0], [6,6]])) # SVG
-            #img_str = base64.b64encode(buffered.getvalue())
-            #img = buffered.getvalue().decode("utf-8")
-            # buffered.close()
-            # return img_str.decode("utf-8") # img
+        smiles = Chem.MolToSmiles(mol_aligned)
+        try:
+            d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(width, width)
+            mol = pickle.loads(zlib.decompress(df[df[smiles_col] == smiles].iloc[0][mol_col]))
+            weights = [float(prop) for prop in re.split(' |\n', mol.GetProp(current_rep))]
+            fig = SimilarityMaps.GetSimilarityMapFromWeights(mol_aligned, weights, size=(width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma)
             return mol_to_base64_highlight_substructure(mol_aligned, patt, d=fig, showMCS=showMCS, width=width)
+        except Exception:
+            logging.exception(f'Error computing similarity map for {smiles}')
 
     return mol_to_base64_highlight_substructure(mol_aligned, patt, width=width)
