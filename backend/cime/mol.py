@@ -80,7 +80,7 @@ def mol_to_base64_highlight_substructure(mol, patt, width=250, d=None, showMCS=T
     return img_str.decode("utf-8")  # d.GetDrawingText()
 
 
-def mol_to_base64_highlight_importances(df, mol_aligned, patt, current_rep, contourLines, scale, sigma, showMCS, smiles_col, mol_col, width=250):
+def mol_to_base64_highlight_importances(dataset, mol_aligned, patt, current_rep, contourLines, scale, sigma, showMCS, smiles_col, mol_col, width=250):
     contourLines = int(contourLines)
     scale = float(scale)
     sigma = float(sigma)
@@ -90,11 +90,11 @@ def mol_to_base64_highlight_importances(df, mol_aligned, patt, current_rep, cont
     if sigma <= 0:
         sigma = None
 
-    if df is not None:
+    if dataset is not None and hasattr(dataset, 'get_mol_from_smiles'):
         smiles = Chem.MolToSmiles(mol_aligned)
         try:
             d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(width, width)
-            mol = pickle.loads(zlib.decompress(df[df[smiles_col] == smiles].iloc[0][mol_col]))
+            mol = dataset.get_mol_from_smiles(smiles, smiles_col, mol_col)
             weights = [float(prop) for prop in re.split(' |\n', mol.GetProp(current_rep))]
             fig = SimilarityMaps.GetSimilarityMapFromWeights(mol_aligned, weights, size=(width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma)
             return mol_to_base64_highlight_substructure(mol_aligned, patt, d=fig, showMCS=showMCS, width=width)

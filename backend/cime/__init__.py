@@ -30,6 +30,9 @@ def create_app():
         dataframe = Column(PickleType, nullable=False)
         rep_list = Column(PickleType, nullable=False)
 
+        def get_mol_from_smiles(self, smiles: str, smiles_col: str, mol_col: str):
+            return self.dataframe[self.dataframe[smiles_col] == smiles].iloc[0][mol_col]
+
     # db.drop_all()
     db.create_all()
 

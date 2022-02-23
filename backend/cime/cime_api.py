@@ -9,8 +9,9 @@ import base64
 import pandas as pd
 import time
 import logging
-import zlib
 from .mol import mol_to_base64_highlight_importances, get_mcs, mol_to_base64_highlight_substructure, smiles_to_base64
+from .db import ACimeDBO
+from flask import stream_with_context, Response
 
 _log = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ smiles_col = 'SMILES'
 mol_col = "Molecule"
 
 
-def get_cime_dbo():
+def get_cime_dbo() -> ACimeDBO:
     return current_app.config['CIME_DBO']
 
 
@@ -34,6 +35,64 @@ def tryParseFloat(value):
         return float(value)
     except ValueError:
         return value
+
+
+def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule'):
+    # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
+    # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
+    _log.info('Starting processing of SDF file')
+    rep_list = set()
+
+    with Chem.ForwardSDMolSupplier(file) as suppl:
+        i = 0
+        for mol in suppl:
+            if mol is None:
+                continue
+
+            # Define the row to be filled
+            row = {}
+
+            # TODO: Make sure that *all* structures have either, otherwise conflicts arise
+            id: str = mol.GetProp('_Name') if mol.HasProp('_Name') else str(i)
+
+            smiles = Chem.MolToSmiles(mol)
+            if smiles is None:
+                continue
+
+            # Add prop names
+            for k in mol.GetPropNames():
+                if k.startswith("atom"):
+                    rep_list.add(k)
+                else:
+                    row[k] = tryParseFloat(mol.GetProp(k))
+
+            # Add name
+            row[id_col_name] = id
+
+            # Add Mol from smiles
+            if smiles_col_name is not None:
+                try:
+                    row[smiles_col_name] = smiles
+                except:
+                    row[smiles_col_name] = None
+
+            has_fingerprint = False
+            for col in row.keys():
+                if col.startswith(fingerprint_modifier):
+                    has_fingerprint = True
+                    break
+
+            if not has_fingerprint:
+                fps = {f'fingerprint_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, 5, nBits=256))}
+                row.update(fps)
+
+            yield id, smiles, row, PropertyMol(mol), list(rep_list)
+
+            i += 1
+            if i % 1000 == 0:
+                _log.info(f'Processed {i} entries')
+
+    _log.info(f'Finished processing of {i} entries')
 
 
 def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule', first_only=False):
@@ -74,7 +133,7 @@ def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Mo
             # Add property mol
             if mol_col_name is not None:
                 # TODO: we only use that once in the code to create the fingerprints/create images, that could be done from the smiles as well?
-                row[mol_col_name] = zlib.compress(pickle.dumps(PropertyMol(mol), protocol=4), level=zlib.Z_BEST_COMPRESSION)
+                row[mol_col_name] = pickle.dumps(PropertyMol(mol), protocol=4)
 
             records.append(row)
 
@@ -132,10 +191,6 @@ def get_atom_rep_list(id):
     if dataset.rep_list:
         return {"rep_list": dataset.rep_list}
 
-    # TODO: Is this required now that we do that immediately?
-    # rep_list = [rep for rep in pickle.loads(dataset.dataframe[mol_col][0]).GetPropNames() if rep.startswith('atom')]
-    # return {"rep_list": rep_list}
-
 
 @cime_api.route('/upload_sdf', methods=['POST'])
 def upload_sdf():
@@ -170,90 +225,147 @@ def sdf_to_csv(id, modifiers=None):
     start_time = time.time()
     if modifiers:
         # split and trim modifier string
-        descriptor_names_no_lineup.extend(
-            [x.strip() for x in modifiers.split(";")])
+        descriptor_names_no_lineup.extend([x.strip() for x in modifiers.split(";")])
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
     if not dataset:
         abort(404)
 
-    frame = dataset.dataframe
-    all_smiles = frame[smiles_col]
+    if hasattr(dataset, 'get_chunked_dataframe'):
+        _log.info('Dataset supports chunked streaming')
 
-    # sort such that the name column comes first and the smiles column comes second
-    sm = frame[smiles_col]
-    name = frame["ID"]
-    frame.drop(labels=[smiles_col, "ID"], axis=1, inplace=True)
-    frame.insert(0, "ID", name)
-    frame.insert(1, smiles_col, sm)
+        @stream_with_context
+        def generate():
+            for i, frame in enumerate(dataset.get_chunked_dataframe(250)):
+                # sort such that the name column comes first and the smiles column comes second
+                sm = frame[smiles_col]
+                name = frame["ID"]
+                frame.drop(labels=[smiles_col, "ID"], axis=1, inplace=True)
+                frame.insert(0, "ID", name)
+                frame.insert(1, smiles_col, sm)
 
-    has_fingerprint = False
-    new_cols = []
-    for col in frame.columns:
-        modifier = ""
-        col_name = col
+                new_cols = []
+                for col in frame.columns:
+                    modifier = ""
+                    col_name = col
 
-        if col.startswith(tuple(descriptor_names_no_lineup)):
-            # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
-            modifier = '%s"noLineUp":true,' % modifier
-            # this modifier tells lineup that the columns belong to a certain group
-            modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
-            split_col = col.split("_")
-            col_name = col.replace(
-                split_col[0]+"_", "") + " (" + split_col[0] + ")"
-        elif col.startswith(tuple(descriptor_names_show_lineup)):
-            # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
-            # this modifier tells lineup that the columns belong to a certain group
-            modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
-            split_col = col.split("_")
-            col_name = col.replace(
-                split_col[0]+"_", "") + " (" + split_col[0] + ")"
-        # else:
-            # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
+                    if col.startswith(tuple(descriptor_names_no_lineup)):
+                        # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
+                        modifier = '%s"noLineUp":true,' % modifier
+                        # this modifier tells lineup that the columns belong to a certain group
+                        modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                        split_col = col.split("_")
+                        col_name = col.replace(
+                            split_col[0]+"_", "") + " (" + split_col[0] + ")"
+                    elif col.startswith(tuple(descriptor_names_show_lineup)):
+                        # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
+                        # this modifier tells lineup that the columns belong to a certain group
+                        modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                        split_col = col.split("_")
+                        col_name = col.replace(
+                            split_col[0]+"_", "") + " (" + split_col[0] + ")"
+                    # else:
+                        # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
 
-        elif col == smiles_col or col.startswith(smiles_prefix):
-            # this modifier tells lineup that a structure image of this smiles string should be loaded
-            modifier = '%s"hideLineUp":true,"imgSmiles":true,' % modifier
+                    elif col == smiles_col or col.startswith(smiles_prefix):
+                        # this modifier tells lineup that a structure image of this smiles string should be loaded
+                        modifier = '%s"hideLineUp":true,"imgSmiles":true,' % modifier
 
-            split_col = col.split("_")
-            if len(split_col) >= 2:
+                        split_col = col.split("_")
+                        if len(split_col) >= 2:
+                            col_name = col.replace(
+                                split_col[0]+"_", "") + " (" + split_col[0] + ")"
+
+                    if col.startswith(fingerprint_modifier):
+                        has_fingerprint = True
+                    else:
+                        modifier = '%s"project":false,'%modifier
+
+                    if col == "ID":
+                        modifier = '%s"dtype":"string",' % modifier
+
+                    # remove the last comma
+                    new_cols.append("%s{%s}" % (col_name, modifier[0:-1]))
+
+                frame.columns = new_cols
+                csv_buffer = StringIO()
+                frame.to_csv(csv_buffer, index=False, header=(i==0))
+                yield csv_buffer.getvalue()
+
+        return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
+    else:
+        frame = dataset.dataframe
+        all_smiles = frame[smiles_col]
+
+        # sort such that the name column comes first and the smiles column comes second
+        sm = frame[smiles_col]
+        name = frame["ID"]
+        frame.drop(labels=[smiles_col, "ID"], axis=1, inplace=True)
+        frame.insert(0, "ID", name)
+        frame.insert(1, smiles_col, sm)
+
+        has_fingerprint = False
+        new_cols = []
+        for col in frame.columns:
+            modifier = ""
+            col_name = col
+
+            if col.startswith(tuple(descriptor_names_no_lineup)):
+                # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
+                modifier = '%s"noLineUp":true,' % modifier
+                # this modifier tells lineup that the columns belong to a certain group
+                modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                split_col = col.split("_")
                 col_name = col.replace(
                     split_col[0]+"_", "") + " (" + split_col[0] + ")"
+            elif col.startswith(tuple(descriptor_names_show_lineup)):
+                # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
+                # this modifier tells lineup that the columns belong to a certain group
+                modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                split_col = col.split("_")
+                col_name = col.replace(
+                    split_col[0]+"_", "") + " (" + split_col[0] + ")"
+            # else:
+                # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
 
-        if col.startswith(fingerprint_modifier):
-            has_fingerprint = True
-        else:
-            modifier = '%s"project":false,'%modifier
+            elif col == smiles_col or col.startswith(smiles_prefix):
+                # this modifier tells lineup that a structure image of this smiles string should be loaded
+                modifier = '%s"hideLineUp":true,"imgSmiles":true,' % modifier
 
-        if col == "ID":
-            modifier = '%s"dtype":"string",' % modifier
+                split_col = col.split("_")
+                if len(split_col) >= 2:
+                    col_name = col.replace(
+                        split_col[0]+"_", "") + " (" + split_col[0] + ")"
 
-        # remove the last comma
-        new_cols.append("%s{%s}" % (col_name, modifier[0:-1]))
+            if col.startswith(fingerprint_modifier):
+                has_fingerprint = True
+            else:
+                modifier = '%s"project":false,'%modifier
 
-    frame.columns = new_cols
+            if col == "ID":
+                modifier = '%s"dtype":"string",' % modifier
 
-    if not has_fingerprint:  # when there are no morgan fingerprints included in the dataset, calculate them now
-        # TODO: We should change that to MolFromSmiles instead of the pickled Mol
-        # fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(
-        #     pickle.loads(mol), 5, nBits=256)) for mol in mols])
-        fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(
-            Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
-        fps.columns = [
-            'fingerprint_%s{"noLineUp":true,"featureLabel": "fingerprint"}' % fp for fp in fps]
-        frame = frame.join(fps)
+            # remove the last comma
+            new_cols.append("%s{%s}" % (col_name, modifier[0:-1]))
 
-    csv_buffer = StringIO()
-    frame.to_csv(csv_buffer, index=False)
+        frame.columns = new_cols
 
-    delta_time = time.time()-start_time
-    print("took", time.strftime('%H:%M:%S', time.gmtime(
-        delta_time)), f"to load file {id}")
-    print(f"took {delta_time/60} min {delta_time % 60} s to load file {id}")
-    # print("get_csv time elapsed [s]:", time.time()-start_time)
+        if not has_fingerprint:  # when there are no morgan fingerprints included in the dataset, calculate them now
+            fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
+            fps.columns = ['fingerprint_%s{"noLineUp":true,"featureLabel": "fingerprint"}' % fp for fp in fps]
+            frame = frame.join(fps)
 
-    return csv_buffer.getvalue()
+        csv_buffer = StringIO()
+        frame.to_csv(csv_buffer, index=False)
+
+        delta_time = time.time()-start_time
+        print("took", time.strftime('%H:%M:%S', time.gmtime(
+            delta_time)), f"to load file {id}")
+        print(f"took {delta_time/60} min {delta_time % 60} s to load file {id}")
+        # print("get_csv time elapsed [s]:", time.time()-start_time)
+
+        return csv_buffer.getvalue()
 
 
 @cime_api.route('/get_difference_highlight', methods=['OPTIONS', 'POST'])
@@ -364,7 +476,6 @@ def smiles_list_to_imgs():
             # TODO: Use id instead of filename
             id = request.form.get("filename")
             dataset = get_cime_dbo().get_dataset_by(id=id)
-            df = dataset.dataframe if dataset else None
 
         if doAlignment:
             # set the coordinates of the core pattern based on the coordinates of the first molecule     
@@ -389,7 +500,7 @@ def smiles_list_to_imgs():
                     mol, patt, width=width))
             else:
                 img_lst.append(mol_to_base64_highlight_importances(
-                    df, mol, patt, current_rep, contourLines, scale, sigma, showMCS, smiles_col, mol_col, width))
+                    dataset, mol, patt, current_rep, contourLines, scale, sigma, showMCS, smiles_col, mol_col, width))
 
         return {"img_lst": img_lst, "error_smiles": error_smiles}
     else:
