@@ -55,8 +55,6 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
         maccsFP = columnMetadata['maccsFingerprint']
         columns = columnMetadata['columns']
 
-    _log.info(columns)
-
     with Chem.ForwardSDMolSupplier(file) as suppl:
         i = 0
         for mol in suppl:
@@ -312,7 +310,6 @@ def sdf_to_csv(id, modifiers=None):
                         modifier['dtype'] = 'string'
 
                     # remove the last comma
-                    _log.info("%s%s" % (col_name, json.dumps(modifier)))
                     new_cols.append("%s%s" % (col_name, json.dumps(modifier)))
 
                 frame.columns = new_cols
@@ -323,7 +320,6 @@ def sdf_to_csv(id, modifiers=None):
         return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
     else:
         frame = dataset.dataframe
-        all_smiles = frame[smiles_col]
 
         # sort such that the name column comes first and the smiles column comes second
         sm = frame[smiles_col]
@@ -332,7 +328,6 @@ def sdf_to_csv(id, modifiers=None):
         frame.insert(0, "ID", name)
         frame.insert(1, smiles_col, sm)
 
-        has_fingerprint = False
         new_cols = []
         for col in frame.columns:
             modifier = ""
