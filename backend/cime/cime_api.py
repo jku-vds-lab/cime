@@ -89,12 +89,12 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
                     row[smiles_col_name] = None
 
             if morganFP is not None and morganFP['include']:
-                fps = {f'fingerprint_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, morganFP['radius'], nBits=morganFP['bits']))}
+                fps = {f'{morgan_modifier}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, morganFP['radius'], nBits=morganFP['bits']))}
                 row.update(fps)
 
             if maccsFP is not None and maccsFP['include']:
                 # TODO: Which maccs package?
-                fps = {f'fingerprint_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, 5, nBits=256))}
+                fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, 5, nBits=256))}
                 row.update(fps)
 
             yield id, smiles, row, PropertyMol(mol), list(rep_list)
@@ -291,7 +291,7 @@ def sdf_to_csv(id, modifiers=None):
 
 
                     if col in columns:
-                        modifier['hideLineUp'] = columns[col]['lineup']
+                        modifier['noLineUp'] = not columns[col]['lineup']
 
                         if views and len(views) > 0:
                             modifier['view'] = []
