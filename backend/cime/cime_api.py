@@ -2,6 +2,7 @@ import pickle
 from flask import Blueprint, request, current_app, abort, jsonify
 import copy
 from rdkit import Chem
+from rdkit.Chem import MACCSkeys
 from rdkit.Chem import TemplateAlign, AllChem, Draw
 from rdkit.Chem.PropertyMol import PropertyMol
 from io import BytesIO, StringIO
@@ -40,20 +41,20 @@ def tryParseFloat(value):
         return value
 
 
-def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", columnMetadata=None):
+def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column_metadata=None):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
     _log.info('Starting processing of SDF file')
     rep_list = set()
 
-    morganFP = None
-    maccsFP = None
+    morgan_fp = None
+    maccs_fp = None
     columns = None
 
-    if (columnMetadata is not None):
-        morganFP = columnMetadata['morganFingerprint']
-        maccsFP = columnMetadata['maccsFingerprint']
-        columns = columnMetadata['columns']
+    if (column_metadata is not None):
+        morgan_fp = column_metadata.get('morganFingerprint')
+        maccs_fp = column_metadata.get('maccsFingerprint')
+        columns = column_metadata.get('columns')
 
     with Chem.ForwardSDMolSupplier(file) as suppl:
         i = 0
@@ -88,13 +89,13 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
                 except:
                     row[smiles_col_name] = None
 
-            if morganFP is not None and morganFP['include']:
-                fps = {f'{morgan_modifier}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, morganFP['radius'], nBits=morganFP['bits']))}
+            if morgan_fp is not None and morgan_fp['include']:
+                radius = morgan_fp["radius"]
+                fps = {f'{morgan_modifier}{radius}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=morgan_fp['bits']))}
                 row.update(fps)
 
-            if maccsFP is not None and maccsFP['include']:
-                # TODO: Which maccs package?
-                fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, 5, nBits=256))}
+            if maccs_fp is not None and maccs_fp['include']:
+                fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
                 row.update(fps)
 
             yield id, smiles, row, PropertyMol(mol), list(rep_list)
