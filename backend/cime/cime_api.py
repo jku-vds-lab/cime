@@ -241,8 +241,8 @@ def sdf_to_csv(id, modifiers=None):
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
-    columns = dataset.transientFields['columns']
-    views = dataset.transientFields['views']
+    columns = dataset.column_metadata['columns']
+    views = dataset.column_metadata['views']
 
     if not dataset:
         abort(404)
@@ -297,9 +297,9 @@ def sdf_to_csv(id, modifiers=None):
                         if views and len(views) > 0:
                             modifier['view'] = []
                             for c, view in enumerate(views):
-                                if view['x'] == col:
+                                if 'x' in view and view['x'] == col:
                                     modifier['view'].append(f'x{c + 1}')
-                                if view['y'] == col:
+                                if 'y' in view and view['y'] == col:
                                     modifier['view'].append(f'y{c + 1}')
 
                         
