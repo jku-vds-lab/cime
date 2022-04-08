@@ -16,7 +16,7 @@ Check out the [DEMO website](https://cime-demo.jku-vds-lab.at) of CIME, which in
 
 Check out the [SDF generation examples](Examples/) if you want to try CIME with your own dataset.
 
-Check out the [Example datasets](https://www.doi.org/10.17605/OSF.IO/KNS6M) from the paper's use cases.
+Check out the [example datasets](https://www.doi.org/10.17605/OSF.IO/KNS6M) from the paper's use cases.
 
 # Documentation
 The ChemInformatics Model Explorer (short CIME) extension of the Projection Space Explorer allows users to interactively explore a fixed subspace of chemical compounds.
