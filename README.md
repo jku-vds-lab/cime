@@ -4,7 +4,7 @@
 
 This repository includes:
 * The implementation of CIME
-    * Front-end web application written in TypeScript using React
+    * [Front-end](Application/) web application written in TypeScript using React
     * [Back-end](Application/backend/) python server
 * [Documentation](#documentation)
 * [Installation](#installation)
