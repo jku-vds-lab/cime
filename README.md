@@ -1,6 +1,6 @@
 # ChemInformatics Model Explorer (CIME): Exploratory analysis of chemical model explanations
-#### Published in: under Review... ####
-#### DOI: 10.26434/chemrxiv-2021-crpd0 ###
+#### Published in: Journal of Cheminformatics ####
+#### DOI: 10.1186/s13321-022-00600-z ###
 
 This repository includes:
 * The implementation of CIME
@@ -10,7 +10,7 @@ This repository includes:
 * [Installation](#installation)
 * [How to cite?](#how-to-cite)
 
-Check out a [preprint of our paper](https://doi.org/10.26434/chemrxiv-2021-crpd0) for further details about the implementation and use cases of CIME. 
+Check out our [paper](https://doi.org/10.1186/s13321-022-00600-z) for further details about the implementation and use cases of CIME. 
 
 Check out the [DEMO website](https://cime-demo.jku-vds-lab.at) of CIME, which includes the datasets used in the use cases.
 
@@ -321,11 +321,11 @@ The application will be available on ‘localhost:8080’.
 You can cite CIME using the following bibtex:
 
 ```bibtex
-@article{humerheberle2021cime,
+@article{humerheberle2022cime,
   author={Humer, Christina and Heberle, Henry and Montanari, Floriane and Wolf, Thomas and Huber, Florian and Henderson, Ryan and Heinrich, Julian and Streit, Marc},
-  journal={ChemRxiv},
+  journal={Journal of Cheminformatics},
   title={{ChemInformatics Model Explorer (CIME)}: Exploratory analysis of chemical model explanations},
-  year={2021},
-  doi={10.26434/chemrxiv-2021-crpd0}
+  year={2022},
+  doi={10.1186/s13321-022-00600-z}
 }
 ```
