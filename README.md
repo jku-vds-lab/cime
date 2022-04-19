@@ -327,7 +327,7 @@ You can cite CIME using the following bibtex:
   title={{ChemInformatics Model Explorer (CIME)}: Exploratory analysis of chemical model explanations},
   year={2022},
   doi={10.1186/s13321-022-00600-z},
-  volume = {14},
-  number = {21},
+  volume={14},
+  number={21},
 }
 ```
