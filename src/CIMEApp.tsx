@@ -43,6 +43,7 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
     embeddings: [
       {id:"umap", name:"UMAP", settings: DEFAULT_UMAP_SETTINGS},
     ],
+    showSummaryAttributes: false
   },
   overrideComponents: {
     datasetTab: DatasetTabPanel,

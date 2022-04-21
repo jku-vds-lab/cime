@@ -2,6 +2,7 @@ import pickle
 from flask import Blueprint, request, current_app, abort, jsonify
 import copy
 from rdkit import Chem
+from rdkit.Chem import MACCSkeys
 from rdkit.Chem import TemplateAlign, AllChem, Draw
 from rdkit.Chem.PropertyMol import PropertyMol
 from io import BytesIO, StringIO
@@ -9,6 +10,7 @@ import base64
 import pandas as pd
 import time
 import logging
+import json
 from .mol import mol_to_base64_highlight_importances, get_mcs, mol_to_base64_highlight_substructure, smiles_to_base64
 from .db import ACimeDBO
 from flask import stream_with_context, Response
@@ -17,9 +19,11 @@ _log = logging.getLogger(__name__)
 
 cime_api = Blueprint('cime', __name__)
 
+maccs_modifier = "maccsFingerprint"
+morgan_modifier = "morganFingerprint"
 
 fingerprint_modifier = "fingerprint"
-descriptor_names_no_lineup = [fingerprint_modifier, "rep"]
+descriptor_names_no_lineup = [fingerprint_modifier, maccs_modifier, morgan_modifier, "rep"]
 descriptor_names_show_lineup = ["pred", "predicted", "measured"]
 smiles_prefix = "smiles"
 smiles_col = 'SMILES'
@@ -37,11 +41,20 @@ def tryParseFloat(value):
         return value
 
 
-def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule'):
+def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column_metadata=None):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
     _log.info('Starting processing of SDF file')
     rep_list = set()
+
+    morgan_fp = None
+    maccs_fp = None
+    columns = None
+
+    if (column_metadata is not None):
+        morgan_fp = column_metadata.get('morganFingerprint')
+        maccs_fp = column_metadata.get('maccsFingerprint')
+        columns = column_metadata.get('columns')
 
     with Chem.ForwardSDMolSupplier(file) as suppl:
         i = 0
@@ -63,7 +76,7 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", mol_co
             for k in mol.GetPropNames():
                 if k.startswith("atom"):
                     rep_list.add(k)
-                else:
+                elif columns is None or (k in columns and columns[k]['include']):
                     row[k] = tryParseFloat(mol.GetProp(k))
 
             # Add name
@@ -76,14 +89,13 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", mol_co
                 except:
                     row[smiles_col_name] = None
 
-            has_fingerprint = False
-            for col in row.keys():
-                if col.startswith(fingerprint_modifier):
-                    has_fingerprint = True
-                    break
+            if morgan_fp is not None and morgan_fp['include']:
+                radius = morgan_fp["radius"]
+                fps = {f'{morgan_modifier}{radius}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=morgan_fp['bits']))}
+                row.update(fps)
 
-            if not has_fingerprint:
-                fps = {f'fingerprint_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, 5, nBits=256))}
+            if maccs_fp is not None and maccs_fp['include']:
+                fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
                 row.update(fps)
 
             yield id, smiles, row, PropertyMol(mol), list(rep_list)
@@ -229,6 +241,9 @@ def sdf_to_csv(id, modifiers=None):
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
+    columns = dataset.column_metadata['columns']
+    views = dataset.column_metadata['views']
+
     if not dataset:
         abort(404)
 
@@ -247,46 +262,56 @@ def sdf_to_csv(id, modifiers=None):
 
                 new_cols = []
                 for col in frame.columns:
-                    modifier = ""
+                    modifier = {}
                     col_name = col
 
                     if col.startswith(tuple(descriptor_names_no_lineup)):
                         # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
-                        modifier = '%s"noLineUp":true,' % modifier
+                        modifier['noLineUp'] = True
                         # this modifier tells lineup that the columns belong to a certain group
-                        modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                        modifier['featureLabel'] = col.split("_")[0]
                         split_col = col.split("_")
                         col_name = col.replace(
                             split_col[0]+"_", "") + " (" + split_col[0] + ")"
                     elif col.startswith(tuple(descriptor_names_show_lineup)):
                         # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
                         # this modifier tells lineup that the columns belong to a certain group
-                        modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
+                        modifier['featureLabel'] = col.split("_")[0]
                         split_col = col.split("_")
                         col_name = col.replace(
                             split_col[0]+"_", "") + " (" + split_col[0] + ")"
-                    # else:
-                        # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
-
                     elif col == smiles_col or col.startswith(smiles_prefix):
                         # this modifier tells lineup that a structure image of this smiles string should be loaded
-                        modifier = '%s"hideLineUp":true,"imgSmiles":true,' % modifier
+                        modifier['hideLineUp'] = True
+                        modifier['imgSmiles'] = True
 
                         split_col = col.split("_")
                         if len(split_col) >= 2:
                             col_name = col.replace(
                                 split_col[0]+"_", "") + " (" + split_col[0] + ")"
 
-                    if col.startswith(fingerprint_modifier):
-                        has_fingerprint = True
-                    else:
-                        modifier = '%s"project":false,'%modifier
+
+                    if col in columns:
+                        modifier['noLineUp'] = not columns[col]['lineup']
+
+                        if views and len(views) > 0:
+                            modifier['view'] = []
+                            for c, view in enumerate(views):
+                                if 'x' in view and view['x'] == col:
+                                    modifier['view'].append(f'x{c + 1}')
+                                if 'y' in view and view['y'] == col:
+                                    modifier['view'].append(f'y{c + 1}')
+
+                        
+
+                    if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
+                        modifier['project'] = False
 
                     if col == "ID":
-                        modifier = '%s"dtype":"string",' % modifier
+                        modifier['dtype'] = 'string'
 
                     # remove the last comma
-                    new_cols.append("%s{%s}" % (col_name, modifier[0:-1]))
+                    new_cols.append("%s%s" % (col_name, json.dumps(modifier)))
 
                 frame.columns = new_cols
                 csv_buffer = StringIO()
@@ -296,7 +321,6 @@ def sdf_to_csv(id, modifiers=None):
         return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
     else:
         frame = dataset.dataframe
-        all_smiles = frame[smiles_col]
 
         # sort such that the name column comes first and the smiles column comes second
         sm = frame[smiles_col]
@@ -305,7 +329,6 @@ def sdf_to_csv(id, modifiers=None):
         frame.insert(0, "ID", name)
         frame.insert(1, smiles_col, sm)
 
-        has_fingerprint = False
         new_cols = []
         for col in frame.columns:
             modifier = ""
@@ -338,9 +361,7 @@ def sdf_to_csv(id, modifiers=None):
                     col_name = col.replace(
                         split_col[0]+"_", "") + " (" + split_col[0] + ")"
 
-            if col.startswith(fingerprint_modifier):
-                has_fingerprint = True
-            else:
+            if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
                 modifier = '%s"project":false,'%modifier
 
             if col == "ID":
@@ -350,11 +371,6 @@ def sdf_to_csv(id, modifiers=None):
             new_cols.append("%s{%s}" % (col_name, modifier[0:-1]))
 
         frame.columns = new_cols
-
-        if not has_fingerprint:  # when there are no morgan fingerprints included in the dataset, calculate them now
-            fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
-            fps.columns = ['fingerprint_%s{"noLineUp":true,"featureLabel": "fingerprint"}' % fp for fp in fps]
-            frame = frame.join(fps)
 
         csv_buffer = StringIO()
         frame.to_csv(csv_buffer, index=False)
