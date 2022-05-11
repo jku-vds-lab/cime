@@ -250,7 +250,7 @@ def sdf_to_csv(id, modifiers=None):
     if hasattr(dataset, 'get_chunked_dataframe'):
         _log.info('Dataset supports chunked streaming')
 
-        @stream_with_context
+        #@stream_with_context
         def generate():
             for i, frame in enumerate(dataset.get_chunked_dataframe(250)):
                 # sort such that the name column comes first and the smiles column comes second
@@ -318,7 +318,8 @@ def sdf_to_csv(id, modifiers=None):
                 frame.to_csv(csv_buffer, index=False, header=(i==0))
                 yield csv_buffer.getvalue()
 
-        return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
+        return ''.join(list(generate()))
+        #return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
     else:
         frame = dataset.dataframe
 
