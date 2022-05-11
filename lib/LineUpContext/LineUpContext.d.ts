@@ -27,7 +27,7 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
-    pointColorScale: any;
+    pointColorScale: import("@reduxjs/toolkit").EntityId;
     channelColor: any;
     detailView: {
         open: boolean;
@@ -73,7 +73,7 @@ export declare const LineUpContext: import("react-redux").ConnectedComponent<({ 
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
-    pointColorScale: any;
+    pointColorScale: import("@reduxjs/toolkit").EntityId;
     channelColor: any;
     detailView: {
         open: boolean;

@@ -45,19 +45,23 @@ import isEqual from 'lodash/isEqual'
  *
  * @param state The whole state of the application (contains a field for each duck!)
  */
-const mapStateToProps = (state: AppState) => ({
-  dataset: state.dataset,
-  lineUpInput: state.lineUpInput,
-  lineUpInput_data: state.dataset?.vectors,
-  lineUpInput_columns: state.dataset?.columns,
-  currentAggregation: state.currentAggregation,
-  activeStory: AStorytelling.getActive(state.stories),
-  pointColorScale: state.pointColorScale,
-  channelColor: state.channelColor,
-  detailView: state.detailView,
-  // splitRef: state.splitRef
-  //hoverState: state.hoverState
-});
+const mapStateToProps = (state: AppState) => {
+  const activeMultiple = state.multiples.multiples.entities[state.multiples.active];
+
+  return {
+    dataset: state.dataset,
+    lineUpInput: state.lineUpInput,
+    lineUpInput_data: state.dataset?.vectors,
+    lineUpInput_columns: state.dataset?.columns,
+    currentAggregation: state.currentAggregation,
+    activeStory: AStorytelling.getActive(state.stories),
+    pointColorScale: activeMultiple?.attributes.pointColorScale,
+    channelColor: activeMultiple?.attributes.channelColor,
+    detailView: state.detailView,
+    // splitRef: state.splitRef
+    //hoverState: state.hoverState
+  }
+};
 
 /**
  * Declares a function which maps dispatch events to component properties (by name)
@@ -65,10 +69,8 @@ const mapStateToProps = (state: AppState) => ({
  * @param dispatch The generic dispatch function declared in redux
  */
 const mapDispatchToProps = (dispatch) => ({
-  setCurrentAggregation: (samples: number[]) =>
-    dispatch(selectVectors(samples)),
-  setLineUpInput_visibility: (visibility) =>
-    dispatch(setDetailVisibility(visibility)),
+  setCurrentAggregation: (samples: number[]) => dispatch(selectVectors(samples)),
+  setLineUpInput_visibility: (visibility) => dispatch(setDetailVisibility(visibility)),
   setLineUpInput_lineup: (input) => dispatch(setLineUpInput_lineup(input)),
   setHoverstate: (state, updater) => dispatch(setHoverState(state, updater)),
 });
@@ -542,13 +544,13 @@ export const LineUpContext = connector(function ({
   ) : (
     <div className="LineUpParent">
       <div style={{
-          clear: 'both',
-          position: 'absolute',
-          top: '1px',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: 0
+        clear: 'both',
+        position: 'absolute',
+        top: '1px',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 0
       }} ref={lineup_ref} id="lineup_view"></div>
     </div>
   );
@@ -595,7 +597,7 @@ function buildLineup(cols, data, pointColorScale, channelColor) {
   // console.log(channelColor) //TODO: update lineup colorscale, if sth changes; TODO: do this for all columns, not just groupLabel
   let groupLabel_cat_color;
   if (channelColor && pointColorScale && channelColor.key === PrebuiltFeatures.ClusterLabel) {
-     // console.log(pointColorScale)
+    // console.log(pointColorScale)
     let groupLabel_mapping = new DiscreteMapping(
       pointColorScale,
       new ShallowSet(
@@ -869,12 +871,12 @@ export class MyLineChartRenderer implements ICellRendererFactory {
           focusText
             .html(
               "<tspan x='0' dy='1.2em'>step: " +
-                i +
-                "</tspan><tspan x='0' dy='1.2em'>mean: " +
-                Math.round(data_mean_list[i] * 100) / 100 +
-                "</tspan><tspan x='0' dy='1.2em'>var: " +
-                Math.round(data_var_list[i] * 100) / 100 +
-                "</tspan>"
+              i +
+              "</tspan><tspan x='0' dy='1.2em'>mean: " +
+              Math.round(data_mean_list[i] * 100) / 100 +
+              "</tspan><tspan x='0' dy='1.2em'>var: " +
+              Math.round(data_var_list[i] * 100) / 100 +
+              "</tspan>"
             )
             .attr("x", 0) //x0
             .attr("y", 0); //y0
