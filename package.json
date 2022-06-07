@@ -29,6 +29,7 @@
     "@types/react-dom": "^17.0.9",
     "customize-cra": "^1.0.0",
     "d3v5": "npm:d3@5.16.0",
+    "lineupjs": "4.6.0",
     "lodash": "~4.17.20",
     "node-sass": "^6.0.1",
     "projection-space-explorer": "git+https://github.com/jku-vds-lab/projection-space-explorer.git#develop",

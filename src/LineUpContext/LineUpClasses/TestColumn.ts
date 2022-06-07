@@ -1,6 +1,5 @@
 import { format } from "d3v5";
 import {
-  ArrayColumn,
   Column,
   dialogAddons,
   EAdvancedSortMethod,
@@ -12,21 +11,16 @@ import {
   IMapColumnDesc,
   IMappingFunction,
   INumberFilter,
-  INumberMapColumnDesc,
-  INumbersColumn,
   INumbersDesc,
-  isUnknown,
   ITypeFactory,
   MapColumn,
   NumberColumn,
-  NumbersColumn,
   ScaleMappingFunction,
   SortByDefault,
   toolbar,
   ValueColumn,
 } from "lineupjs";
 import {
-  IBoxPlotData,
   IEventListener,
   IForEachAble,
 } from "lineupjs/build/src/internal";
@@ -232,7 +226,11 @@ export class TestColumn extends MapColumn<number[]> {
       median: this.get_advanced_value(EAdvancedSortMethod.median, data),
       q1: this.get_advanced_value(EAdvancedSortMethod.q1, data),
       q3: this.get_advanced_value(EAdvancedSortMethod.q3, data),
+<<<<<<< HEAD
       kdePoints: [],
+=======
+      kdePoints: []
+>>>>>>> dv_develop
     };
   }
 
