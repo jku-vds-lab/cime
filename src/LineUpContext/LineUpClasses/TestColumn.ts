@@ -232,6 +232,7 @@ export class TestColumn extends MapColumn<number[]> {
       median: this.get_advanced_value(EAdvancedSortMethod.median, data),
       q1: this.get_advanced_value(EAdvancedSortMethod.q1, data),
       q3: this.get_advanced_value(EAdvancedSortMethod.q3, data),
+      kdePoints: [],
     };
   }
 
