@@ -38,7 +38,7 @@ import { TestColumn } from "./LineUpClasses/TestColumn";
 import { setLineUpInput_lineup } from "../State/LineUpInputDuck";
 import { AppState } from "../State/Store";
 import * as d3v5 from "d3v5";
-import isEqual from 'lodash/isEqual'
+import isEqual from "lodash/isEqual";
 
 /**
  * Declares a function which maps application state to component properties (by name)
@@ -46,7 +46,8 @@ import isEqual from 'lodash/isEqual'
  * @param state The whole state of the application (contains a field for each duck!)
  */
 const mapStateToProps = (state: AppState) => {
-  const activeMultiple = state.multiples.multiples.entities[state.multiples.active];
+  const activeMultiple =
+    state.multiples.multiples.entities[state.multiples.active];
 
   return {
     dataset: state.dataset,
@@ -60,7 +61,7 @@ const mapStateToProps = (state: AppState) => {
     detailView: state.detailView,
     // splitRef: state.splitRef
     //hoverState: state.hoverState
-  }
+  };
 };
 
 /**
@@ -69,8 +70,10 @@ const mapStateToProps = (state: AppState) => {
  * @param dispatch The generic dispatch function declared in redux
  */
 const mapDispatchToProps = (dispatch) => ({
-  setCurrentAggregation: (samples: number[]) => dispatch(selectVectors(samples)),
-  setLineUpInput_visibility: (visibility) => dispatch(setDetailVisibility(visibility)),
+  setCurrentAggregation: (samples: number[]) =>
+    dispatch(selectVectors(samples)),
+  setLineUpInput_visibility: (visibility) =>
+    dispatch(setDetailVisibility(visibility)),
   setLineUpInput_lineup: (input) => dispatch(setLineUpInput_lineup(input)),
   setHoverstate: (state, updater) => dispatch(setHoverState(state, updater)),
 });
@@ -299,11 +302,11 @@ export const LineUpContext = connector(function ({
     const ranking = lineup.data.getFirstRanking();
 
     // add selection checkbox column
-    let selection_col = ranking.children.find(
-      (x) => x.label == "Selection Checkboxes"
-    );
+    let selection_col = ranking.children.find((column) => {
+      return column.desc.type === "selection";
+    });
     if (!selection_col) {
-      selection_col = lineup.data.create(createSelectionDesc());
+      selection_col = lineup.data.create(createSelectionDesc("Selections"));
       if (selection_col) {
         ranking.insert(selection_col, 1);
       }
@@ -532,7 +535,6 @@ export const LineUpContext = connector(function ({
 
   //https://github.com/lineupjs/lineup_app/blob/master/src/export.ts
   return false ? (
-
     <MyWindowPortal
       onClose={() => {
         lineUpInput.lineup?.destroy();
@@ -543,15 +545,19 @@ export const LineUpContext = connector(function ({
     </MyWindowPortal>
   ) : (
     <div className="LineUpParent">
-      <div style={{
-        clear: 'both',
-        position: 'absolute',
-        top: '1px',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: 0
-      }} ref={lineup_ref} id="lineup_view"></div>
+      <div
+        style={{
+          clear: "both",
+          position: "absolute",
+          top: "1px",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 0,
+        }}
+        ref={lineup_ref}
+        id="lineup_view"
+      ></div>
     </div>
   );
 });
@@ -596,7 +602,11 @@ const base_color = "#c1c1c1";
 function buildLineup(cols, data, pointColorScale, channelColor) {
   // console.log(channelColor) //TODO: update lineup colorscale, if sth changes; TODO: do this for all columns, not just groupLabel
   let groupLabel_cat_color;
-  if (channelColor && pointColorScale && channelColor.key === PrebuiltFeatures.ClusterLabel) {
+  if (
+    channelColor &&
+    pointColorScale &&
+    channelColor.key === PrebuiltFeatures.ClusterLabel
+  ) {
     // console.log(pointColorScale)
     let groupLabel_mapping = new DiscreteMapping(
       pointColorScale,
@@ -871,12 +881,12 @@ export class MyLineChartRenderer implements ICellRendererFactory {
           focusText
             .html(
               "<tspan x='0' dy='1.2em'>step: " +
-              i +
-              "</tspan><tspan x='0' dy='1.2em'>mean: " +
-              Math.round(data_mean_list[i] * 100) / 100 +
-              "</tspan><tspan x='0' dy='1.2em'>var: " +
-              Math.round(data_var_list[i] * 100) / 100 +
-              "</tspan>"
+                i +
+                "</tspan><tspan x='0' dy='1.2em'>mean: " +
+                Math.round(data_mean_list[i] * 100) / 100 +
+                "</tspan><tspan x='0' dy='1.2em'>var: " +
+                Math.round(data_var_list[i] * 100) / 100 +
+                "</tspan>"
             )
             .attr("x", 0) //x0
             .attr("y", 0); //y0

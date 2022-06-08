@@ -165,7 +165,3 @@ export const LineUpTabPanel = connector(
     );
   }
 );
-
-function dispatch(arg0: { type: string; input: any }) {
-  throw new Error("Function not implemented.");
-}
