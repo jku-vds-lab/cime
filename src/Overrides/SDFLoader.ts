@@ -7,7 +7,7 @@ import {
   DatasetType,
   IVector,
   Loader,
-  useCancellablePromise
+  useCancellablePromise,
 } from "projection-space-explorer";
 import * as d3v5 from "d3v5";
 
@@ -99,7 +99,8 @@ export class SDFLoader implements Loader {
       typeof useCancellablePromise
     >["cancellablePromise"],
     modifiers?: string,
-    controller?: AbortController
+    controller?: AbortController,
+    onError?: (error: any) => void
   ) {
     // request the server to return a csv file using the unique filename
     const path =
@@ -119,17 +120,19 @@ export class SDFLoader implements Loader {
     trackPromise(
       promise
         .then((vectors) => {
+          console.log(vectors);
           this.vectors = convertFromCSV(vectors);
           this.datasetType = DatasetType.Chem;
-          new CSVLoader().resolve(
-            finished,
-            this.vectors,
-            this.datasetType,
-            entry
-          );
+          new CSVLoader()
+            .resolve(finished, this.vectors, this.datasetType, entry)
+            .catch((error) => {
+              onError(error);
+            });
         })
         .catch((error) => {
-          console.log(error);
+          if (onError) {
+            onError(error);
+          }
         }),
       this.loadingArea
     );
