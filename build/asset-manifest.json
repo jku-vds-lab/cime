@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/jku-vds-lab/cime/static/css/main.edf2ed0a.chunk.css",
-    "main.js": "/jku-vds-lab/cime/static/js/main.85fd9c7a.chunk.js",
-    "main.js.map": "/jku-vds-lab/cime/static/js/main.85fd9c7a.chunk.js.map",
+    "main.js": "/jku-vds-lab/cime/static/js/main.a3a4d8df.chunk.js",
+    "main.js.map": "/jku-vds-lab/cime/static/js/main.a3a4d8df.chunk.js.map",
     "runtime-main.js": "/jku-vds-lab/cime/static/js/runtime-main.df08a6ec.js",
     "runtime-main.js.map": "/jku-vds-lab/cime/static/js/runtime-main.df08a6ec.js.map",
     "static/js/2.5ef7c93f.chunk.js": "/jku-vds-lab/cime/static/js/2.5ef7c93f.chunk.js",
@@ -10,13 +10,13 @@
     "index.html": "/jku-vds-lab/cime/index.html",
     "static/css/main.edf2ed0a.chunk.css.map": "/jku-vds-lab/cime/static/css/main.edf2ed0a.chunk.css.map",
     "static/js/2.5ef7c93f.chunk.js.LICENSE.txt": "/jku-vds-lab/cime/static/js/2.5ef7c93f.chunk.js.LICENSE.txt",
-    "static/js/main.85fd9c7a.chunk.js.LICENSE.txt": "/jku-vds-lab/cime/static/js/main.85fd9c7a.chunk.js.LICENSE.txt",
+    "static/js/main.a3a4d8df.chunk.js.LICENSE.txt": "/jku-vds-lab/cime/static/js/main.a3a4d8df.chunk.js.LICENSE.txt",
     "static/media/bayer-logo.fac1191b.svg": "/jku-vds-lab/cime/static/media/bayer-logo.fac1191b.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.df08a6ec.js",
     "static/js/2.5ef7c93f.chunk.js",
     "static/css/main.edf2ed0a.chunk.css",
-    "static/js/main.85fd9c7a.chunk.js"
+    "static/js/main.a3a4d8df.chunk.js"
   ]
 }
