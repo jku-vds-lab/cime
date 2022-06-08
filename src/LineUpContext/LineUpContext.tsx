@@ -146,7 +146,6 @@ export const LineUpContext = connector(function ({
   );
 
   const preprocess_lineup_data = (data) => {
-    console.log(data);
     if (activeStory)
       ACluster.deriveVectorLabelsFromClusters(
         data,
