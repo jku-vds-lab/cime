@@ -32,7 +32,7 @@
     "lineupjs": "4.6.0",
     "lodash": "~4.17.20",
     "node-sass": "^6.0.1",
-    "projection-space-explorer": "git+https://github.com/jku-vds-lab/projection-space-explorer.git#develop",
+    "projection-space-explorer": "git+ssh://git@github.com:jku-vds-lab/projection-space-explorer#develop",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-loader-spinner": "^4.0.0",
