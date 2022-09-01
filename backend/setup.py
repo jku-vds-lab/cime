@@ -8,7 +8,7 @@ setup(
         'flask',
         'flask_sqlalchemy',
         'projection-space-explorer @ git+https://github.com/jku-vds-lab/projection-space-explorer.git@develop#egg=projection-space-explorer&subdirectory=backend',
-        'rdkit>=2022.3.5',
+        'rdkit>=2022.3.3',
         'joblib',
         'flask-cors'
     ],
