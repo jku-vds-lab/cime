@@ -1,5 +1,5 @@
 import pickle
-from typing import Dict
+from typing import Callable, Dict, List
 from flask import Blueprint, request, current_app, abort, jsonify
 import copy
 from rdkit import Chem
@@ -14,22 +14,13 @@ import logging
 import json
 from .mol import mol_to_base64_highlight_importances, get_mcs, mol_to_base64_highlight_substructure, smiles_to_base64
 from .db import ACimeDBO
-from flask import stream_with_context, Response
+from joblib import Parallel, delayed
+import multiprocessing
+from .constants import descriptor_names_no_lineup,descriptor_names_show_lineup,fingerprint_modifier,id_col_name,maccs_modifier,mol_col,morgan_modifier,smiles_col
 
 _log = logging.getLogger(__name__)
 
 cime_api = Blueprint('cime', __name__)
-
-maccs_modifier = "maccsFingerprint"
-morgan_modifier = "morganFingerprint"
-
-fingerprint_modifier = "fingerprint"
-descriptor_names_no_lineup = [fingerprint_modifier, maccs_modifier, morgan_modifier, "rep"]
-descriptor_names_show_lineup = ["pred", "predicted", "measured"]
-# TODO: This is not supported anymore in the _generator version. Should be removed at some point.
-smiles_col = 'SMILES'
-# TODO: This is not supported anymore in the _generator version. Should be removed at some point.
-mol_col = "Molecule"
 
 
 def get_cime_dbo() -> ACimeDBO:
@@ -43,7 +34,7 @@ def tryParseFloat(value):
         return value
 
 
-def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column_metadata=None):
+def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
     _log.info('Starting processing of SDF file')
@@ -81,9 +72,6 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
                 elif columns is None or (k in columns and columns[k]['include']):
                     row[k] = tryParseFloat(mol.GetProp(k))
 
-            # Add name
-            row[id_col_name] = id
-
             # Add Mol from smiles
             if smiles_col_name is not None:
                 try:
@@ -109,7 +97,7 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
     _log.info(f'Finished processing of {i} entries')
 
 
-def sdf_to_df(file, id_col_name='ID', smiles_col_name="SMILES", mol_col_name='Molecule', first_only=False):
+def sdf_to_df(file, id_col_name=id_col_name, smiles_col_name=smiles_col, mol_col_name=mol_col, first_only=False):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
     _log.info('Starting processing of SDF file')
@@ -258,9 +246,9 @@ def sdf_to_csv(id, modifiers=None):
         def generate():
             for i, frame in enumerate(dataset.get_chunked_dataframe(250)):
                 # sort such that the name column comes first and the smiles column comes second
-                name = frame["ID"]
-                frame.drop(labels=["ID"], axis=1, inplace=True)
-                frame.insert(0, "ID", name)
+                name = frame[id_col_name]
+                frame.drop(labels=[id_col_name], axis=1, inplace=True)
+                frame.insert(0, id_col_name, name)
 
                 if smiles_col:
                     sm = frame[smiles_col]
@@ -314,7 +302,7 @@ def sdf_to_csv(id, modifiers=None):
                     if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
                         modifier['project'] = False
 
-                    if col == "ID":
+                    if col == id_col_name:
                         modifier['dtype'] = 'string'
 
                     # remove the last comma
@@ -331,9 +319,9 @@ def sdf_to_csv(id, modifiers=None):
         frame = dataset.dataframe
 
         # sort such that the name column comes first and the smiles column comes second
-        name = frame["ID"]
-        frame.drop(labels=["ID"], axis=1, inplace=True)
-        frame.insert(0, "ID", name)
+        name = frame[id_col_name]
+        frame.drop(labels=[id_col_name], axis=1, inplace=True)
+        frame.insert(0, id_col_name, name)
 
         if smiles_col:
             sm = frame[smiles_col]
@@ -375,7 +363,7 @@ def sdf_to_csv(id, modifiers=None):
             if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
                 modifier = '%s"project":false,'%modifier
 
-            if col == "ID":
+            if col == id_col_name:
                 modifier = '%s"dtype":"string",' % modifier
 
             # remove the last comma
@@ -465,10 +453,20 @@ def smiles_to_img_post():
         return {}
 
 
+# Utility function parallizing array operations
+def parallelized(func: Callable, l: List):
+    def wrapper(arg_with_index):
+        i, arg = arg_with_index
+        return (i, func(arg_with_index))
+    num_cores = multiprocessing.cpu_count()
+    unsorted_result = filter(None, Parallel(n_jobs=num_cores)(delayed(wrapper)(m) for m in list(enumerate(l))))
+    return [x[1] for x in sorted(unsorted_result, key=lambda x: x[0])]
+
+
 @cime_api.route('/get_mol_imgs', methods=['OPTIONS', 'POST'])
 def smiles_list_to_imgs():
     if request.method == 'POST':
-        smiles_list = request.form.getlist("smiles_list")
+        ids = request.form.getlist("ids")
         current_rep = request.form.get("current_rep")
         contourLines = request.form.get("contourLines")
         scale = request.form.get("scale")
@@ -477,59 +475,57 @@ def smiles_list_to_imgs():
         width = request.form.get("width")
         doAlignment = request.form.get("doAlignment") == "true"
 
-        if len(smiles_list) == 0:
-            return {"error": "empty SMILES list"}
+        if len(ids) == 0:
+            return {"error": "empty ids list"}
         # if len(smiles_list) == 1:
         #    return {"img_lst": [smiles_to_base64(smiles_list[0])]}
 
-        mol_lst = []
-        error_smiles = []
-        for smiles in smiles_list:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol:
-                mol_lst.append(mol)
-            else:
-                error_smiles.append(smiles)
+        # TODO: Use id instead of filename
+        id = request.form.get("filename")
+        dataset = get_cime_dbo().get_dataset_by(id=id)
+        if not dataset:
+            return {"error": "dataset not found"}
 
+        id_to_mol: Dict[str, str] = dataset.get_mols_by_ids(ids)
+        mol_lst = list(id_to_mol.values())
+
+        # TODO: This entire endpoint could be returning a single image if we would fetch the MCS and alignment beforehand?
+        # This would allow us to "lazy" load the images and only load the ones that are actually needed
         if len(mol_lst) > 1:
             patt = get_mcs(mol_lst)
-
-            # TemplateAlign.rdDepictor.Compute2DCoords(patt)
         else:
             patt = Chem.MolFromSmiles("*")
 
-        df = None
-        if current_rep != "Common Substructure":
-            # TODO: Use id instead of filename
-            id = request.form.get("filename")
-            dataset = get_cime_dbo().get_dataset_by(id=id)
-
         if doAlignment:
+            first = mol_lst[0]
             # set the coordinates of the core pattern based on the coordinates of the first molecule     
-            match = mol_lst[0].GetSubstructMatch(patt)
+            match = first.GetSubstructMatch(patt)
             conf = Chem.Conformer(patt.GetNumAtoms())
-            TemplateAlign.rdDepictor.Compute2DCoords(mol_lst[0])
-            mconf = mol_lst[0].GetConformer(0)
+            TemplateAlign.rdDepictor.Compute2DCoords(first)
+            mconf = first.GetConformer(0)
             for i,aidx in enumerate(match):
                 conf.SetAtomPosition(i,mconf.GetAtomPosition(aidx))
             patt.AddConformer(conf)
 
         img_lst = []
-        for mol in mol_lst:
+
+        def generate_image(arg):
+            i, mol = arg
             if doAlignment:  # if user disables alignment, skip
                 # if no common substructure was found, skip the alignment
-                if(patt and Chem.MolToSmiles(patt) != "*"):
+                if patt and Chem.MolToSmiles(patt) != "*":
                     TemplateAlign.rdDepictor.Compute2DCoords(mol)
                     match = mol.GetSubstructMatch(patt)
-                    TemplateAlign.AlignMolToTemplate2D(mol,patt,match=match,clearConfs=True)
+                    TemplateAlign.AlignMolToTemplate2D(mol, patt, match=match, clearConfs=True)
             if current_rep == "Common Substructure":
-                img_lst.append(mol_to_base64_highlight_substructure(
-                    mol, patt, width=width))
+                return mol_to_base64_highlight_substructure(mol, patt, width=width)
             else:
-                img_lst.append(mol_to_base64_highlight_importances(
-                    dataset, mol, patt, current_rep, contourLines, scale, sigma, showMCS, smiles_col, mol_col, width))
+                return mol_to_base64_highlight_importances(mol, patt, current_rep, contourLines, scale, sigma, showMCS, width)
 
-        return {"img_lst": img_lst, "error_smiles": error_smiles}
+        # parallelize the image creation for significant speedups
+        img_lst = parallelized(generate_image, id_to_mol.values())
+
+        return {"img_lst": img_lst, "error_smiles": []}
     else:
         return {}
 

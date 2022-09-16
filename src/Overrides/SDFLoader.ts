@@ -120,7 +120,6 @@ export class SDFLoader implements Loader {
     trackPromise(
       promise
         .then((vectors) => {
-          console.log(vectors);
           this.vectors = convertFromCSV(vectors);
           this.datasetType = DatasetType.Chem;
           new CSVLoader()

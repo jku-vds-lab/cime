@@ -279,21 +279,18 @@ export const LineUpContext = connector(function ({
     //     }
     // }
 
-    let temp_data = preprocess_lineup_data(lineUpInput_data);
-    let lineup_data = temp_data[0];
-    let columns = temp_data[1];
+    let [lineup_data, columns] = preprocess_lineup_data(lineUpInput_data);
 
     const builder = buildLineup(
       columns,
       lineup_data,
       pointColorScale,
       channelColor
-    ); //lineUpInput_data
+    );
     let dump = get_lineup_dump(lineUpInput);
 
     lineUpInput.lineup?.destroy();
-    let lineup;
-    lineup = builder.buildTaggle(lineup_ref.current);
+    let lineup = builder.buildTaggle(lineup_ref.current);
 
     if (dump) {
       lineup.restore(dump);
@@ -375,9 +372,9 @@ export const LineUpContext = connector(function ({
         });
       }
 
-      const lineup_smiles_cols = ranking.children.filter((x: any) =>
-        smiles_structure_columns.includes(x.label)
-      );
+      const lineup_smiles_cols = ranking.children.filter(
+        (x) => x instanceof StructureImageColumn
+      ) as StructureImageColumn[];
       for (const i in lineup_smiles_cols) {
         let lineup_smiles_col = lineup_smiles_cols[i];
         lineup_smiles_col.on("widthChanged", (prev, current) => {
@@ -391,6 +388,7 @@ export const LineUpContext = connector(function ({
             const filter = typeof cur?.filter === "string" ? cur?.filter : null; // only allow string filters -> no regex (TODO: remove regex checkbox)
             if (lineup_smiles_col && filter) {
               CIMEBackendFromEnv.getSubstructureCount(
+                // @ts-ignore
                 lineUpInput_data.map((d) => d[lineup_smiles_col.desc.column]),
                 filter
               )
@@ -566,6 +564,7 @@ const WIDTH_HEIGHT_RATIO = 2;
 let smiles_structure_columns = new Array<any>();
 let custom_chart_columns = new Array<any>();
 function myDynamicHeight(data: IGroupItem[], ranking: Ranking): IDynamicHeight {
+  return { defaultHeight: 25, height: () => 25, padding: () => 0 };
   if (smiles_structure_columns.length > 0) {
     const cols = ranking.children.filter(
       (x) =>
@@ -691,7 +690,6 @@ function buildLineup(cols, data, pointColorScale, channelColor) {
   builder.livePreviews({
     filter: false,
   });
-  //@ts-ignore
   builder.dynamicHeight(myDynamicHeight);
   builder.animated(false);
 

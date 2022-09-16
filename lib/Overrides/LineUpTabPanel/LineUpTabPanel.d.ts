@@ -4,7 +4,7 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
     dataset: import("projection-space-explorer").Dataset;
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: import("@reduxjs/toolkit").EntityId[];
+        selectedClusters: (string | number)[];
         source: "sample" | "cluster";
     };
     lineUpInput: import("../../State/LineUpInputDuck").LineUpType;
@@ -20,7 +20,7 @@ export declare const LineUpTabPanel: import("react-redux").ConnectedComponent<({
     dataset: import("projection-space-explorer").Dataset;
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: import("@reduxjs/toolkit").EntityId[];
+        selectedClusters: (string | number)[];
         source: "sample" | "cluster";
     };
     lineUpInput: import("../../State/LineUpInputDuck").LineUpType;

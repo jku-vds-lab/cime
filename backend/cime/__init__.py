@@ -1,6 +1,7 @@
+from typing import Dict, List
 from .cime_api import cime_api
 from .db import ACimeDBO
-from projection_space_explorer import pse_api
+from .constants import mol_col, id_col_name
 
 
 def create_app():
@@ -30,8 +31,9 @@ def create_app():
         dataframe = Column(PickleType, nullable=False)
         rep_list = Column(PickleType, nullable=False)
 
-        def get_mol_from_smiles(self, smiles: str, smiles_col: str, mol_col: str):
-            return self.dataframe[self.dataframe[smiles_col] == smiles].iloc[0][mol_col]
+        def get_mols_by_ids(self, ids: List[str]) -> Dict[str, object]:
+            subset = self.dataframe[self.dataframe[id_col_name].isin(ids)]
+            return dict(zip(subset[id_col_name], subset[mol_col]))
 
     # db.drop_all()
     db.create_all()

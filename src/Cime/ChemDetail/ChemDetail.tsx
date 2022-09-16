@@ -107,7 +107,7 @@ export const ChemLegendParent = connector_Chem(function (
         } else {
           const formData = new FormData();
           props.selection.every((row) => {
-            formData.append("smiles_list", row[smiles_col]);
+            formData.append("ids", row["cime_id"]);
             return true;
           });
           my_fetch = CIMEBackendFromEnv.getMCSFromSmilesList(
@@ -543,7 +543,7 @@ const ImageView = connector_Img(function ({
           const formData = new FormData();
           formData.append("current_rep", current_rep);
           selection.forEach((row) => {
-            formData.append("smiles_list", row[smiles_col]);
+            formData.append("ids", row["cime_id"]);
           });
           formData.append(
             "contourLines",
@@ -602,7 +602,7 @@ const ImageView = connector_Img(function ({
                       }
                     />
                     <Typography style={{ paddingLeft: 5 }} variant="subtitle2">
-                      ID: {selection[i]["ID"]}
+                      ID: {selection[i]["cime_id"]}
                     </Typography>
                   </Grid>
                 );
@@ -633,7 +633,7 @@ const ImageView = connector_Img(function ({
                     alt=""
                   />
                   <Typography style={{ paddingLeft: 5 }} variant="subtitle2">
-                    ID: {row["ID"]}
+                    ID: {row["cime_id"]}
                   </Typography>
                 </div>
               );
@@ -660,7 +660,7 @@ const ImageView = connector_Img(function ({
           const formData = new FormData();
           formData.append("current_rep", current_rep);
           selection.forEach((row) => {
-            formData.append("smiles_list", row[smiles_col]);
+            formData.append("ids", row["cime_id"]);
           });
           formData.append(
             "contourLines",

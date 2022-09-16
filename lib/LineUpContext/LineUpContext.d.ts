@@ -23,11 +23,11 @@ declare const connector: import("react-redux").InferableComponentEnhancerWithPro
     };
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: import("@reduxjs/toolkit").EntityId[];
+        selectedClusters: (string | number)[];
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
-    pointColorScale: import("@reduxjs/toolkit").EntityId;
+    pointColorScale: string | number;
     channelColor: any;
     detailView: {
         open: boolean;
@@ -69,11 +69,11 @@ export declare const LineUpContext: import("react-redux").ConnectedComponent<({ 
     };
     currentAggregation: {
         aggregation: number[];
-        selectedClusters: import("@reduxjs/toolkit").EntityId[];
+        selectedClusters: (string | number)[];
         source: "sample" | "cluster";
     };
     activeStory: import("projection-space-explorer").IBook;
-    pointColorScale: import("@reduxjs/toolkit").EntityId;
+    pointColorScale: string | number;
     channelColor: any;
     detailView: {
         open: boolean;
