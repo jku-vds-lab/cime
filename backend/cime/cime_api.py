@@ -1,4 +1,5 @@
 import pickle
+from typing import Dict
 from flask import Blueprint, request, current_app, abort, jsonify
 import copy
 from rdkit import Chem
@@ -25,8 +26,9 @@ morgan_modifier = "morganFingerprint"
 fingerprint_modifier = "fingerprint"
 descriptor_names_no_lineup = [fingerprint_modifier, maccs_modifier, morgan_modifier, "rep"]
 descriptor_names_show_lineup = ["pred", "predicted", "measured"]
-smiles_prefix = "smiles"
+# TODO: This is not supported anymore in the _generator version. Should be removed at some point.
 smiles_col = 'SMILES'
+# TODO: This is not supported anymore in the _generator version. Should be removed at some point.
 mol_col = "Molecule"
 
 
@@ -98,7 +100,7 @@ def sdf_to_df_generator(file, id_col_name='ID', smiles_col_name="SMILES", column
                 fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
                 row.update(fps)
 
-            yield id, smiles, row, PropertyMol(mol), list(rep_list)
+            yield id, smiles, row, {"mol": PropertyMol(mol), "column": smiles_col_name}, list(rep_list)
 
             i += 1
             if i % 1000 == 0:
@@ -241,7 +243,9 @@ def sdf_to_csv(id, modifiers=None):
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
-    columns = dataset.column_metadata['columns']
+    columns: Dict = dataset.column_metadata['columns']
+    smiles_column_metadata = next((c for c in columns.values() if c.get('smiles')), None)
+    smiles_col = smiles_column_metadata["id"] if smiles_column_metadata else None
     views = dataset.column_metadata['views']
 
     if not dataset:
@@ -254,11 +258,14 @@ def sdf_to_csv(id, modifiers=None):
         def generate():
             for i, frame in enumerate(dataset.get_chunked_dataframe(250)):
                 # sort such that the name column comes first and the smiles column comes second
-                sm = frame[smiles_col]
                 name = frame["ID"]
-                frame.drop(labels=[smiles_col, "ID"], axis=1, inplace=True)
+                frame.drop(labels=["ID"], axis=1, inplace=True)
                 frame.insert(0, "ID", name)
-                frame.insert(1, smiles_col, sm)
+
+                if smiles_col:
+                    sm = frame[smiles_col]
+                    frame.drop(labels=[smiles_col], axis=1, inplace=True)
+                    frame.insert(1, smiles_col, sm)
 
                 new_cols = []
                 for col in frame.columns:
@@ -280,7 +287,7 @@ def sdf_to_csv(id, modifiers=None):
                         split_col = col.split("_")
                         col_name = col.replace(
                             split_col[0]+"_", "") + " (" + split_col[0] + ")"
-                    elif col == smiles_col or col.startswith(smiles_prefix):
+                    elif smiles_col and col == smiles_col:
                         # this modifier tells lineup that a structure image of this smiles string should be loaded
                         modifier['hideLineUp'] = True
                         modifier['imgSmiles'] = True
@@ -324,11 +331,14 @@ def sdf_to_csv(id, modifiers=None):
         frame = dataset.dataframe
 
         # sort such that the name column comes first and the smiles column comes second
-        sm = frame[smiles_col]
         name = frame["ID"]
-        frame.drop(labels=[smiles_col, "ID"], axis=1, inplace=True)
+        frame.drop(labels=["ID"], axis=1, inplace=True)
         frame.insert(0, "ID", name)
-        frame.insert(1, smiles_col, sm)
+
+        if smiles_col:
+            sm = frame[smiles_col]
+            frame.drop(labels=[smiles_col], axis=1, inplace=True)
+            frame.insert(1, smiles_col, sm)
 
         new_cols = []
         for col in frame.columns:
@@ -353,7 +363,7 @@ def sdf_to_csv(id, modifiers=None):
             # else:
                 # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
 
-            elif col == smiles_col or col.startswith(smiles_prefix):
+            elif smiles_col and col == smiles_col:
                 # this modifier tells lineup that a structure image of this smiles string should be loaded
                 modifier = '%s"hideLineUp":true,"imgSmiles":true,' % modifier
 
