@@ -1,30 +1,31 @@
 from typing import Dict, List
+
 from .cime_api import cime_api
+from .constants import id_col_name, mol_col
 from .db import ACimeDBO
-from .constants import mol_col, id_col_name
 
 
 def create_app():
+    import logging
+    import os
+
     from flask import Flask
     from flask_cors import CORS
     from flask_sqlalchemy import SQLAlchemy
-    import os
-    import logging
 
     app = Flask(__name__)
     CORS(app)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-    app.config['CIME_FILES_DIRECTORY'] = os.path.join(
-        os.path.dirname(__file__), 'temp-files')
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+    app.config["CIME_FILES_DIRECTORY"] = os.path.join(os.path.dirname(__file__), "temp-files")
     app.logger.setLevel(logging.INFO)
 
     db = SQLAlchemy(app)
 
-    from sqlalchemy import Column, Integer, String, PickleType
+    from sqlalchemy import Column, Integer, PickleType, String
 
     class Dataset(db.Model):
-        __tablename__ = 'dataset'
+        __tablename__ = "dataset"
 
         id = Column(Integer, primary_key=True)
         name = Column(String, nullable=False)
@@ -39,9 +40,7 @@ def create_app():
     db.create_all()
 
     def setup_cime_dbo(db):
-
         class CimeDBO(ACimeDBO):
-
             def get_datasets_by(self, **kwargs):
                 return Dataset.query.filter_by(**kwargs).all()
 
@@ -54,9 +53,9 @@ def create_app():
 
             def save_file(self, file):
                 dataset = Dataset()
-                dataset.name = file.get('name')
-                dataset.dataframe = file.get('dataframe')
-                dataset.rep_list = file.get('rep_list')
+                dataset.name = file.get("name")
+                dataset.dataframe = file.get("dataframe")
+                dataset.rep_list = file.get("rep_list")
                 db.session.add(dataset)
                 db.session.commit()
                 return dataset
@@ -67,7 +66,7 @@ def create_app():
 
         return CimeDBO()
 
-    app.config['CIME_DBO'] = setup_cime_dbo(db)
+    app.config["CIME_DBO"] = setup_cime_dbo(db)
 
     # dataset1 = Dataset()
     # dataset1.name = 'Test 1'

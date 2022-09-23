@@ -1,12 +1,11 @@
+import base64
+import logging
 import re
+from io import BytesIO
+
 from rdkit import Chem
 from rdkit.Chem import Draw, rdFMCS
 from rdkit.Chem.Draw import SimilarityMaps
-from io import BytesIO
-import base64
-import pickle
-import zlib
-import logging
 
 
 def get_mcs(mol_list):
@@ -19,9 +18,8 @@ def get_mcs(mol_list):
         mol_list = [Chem.MolFromSmiles(sm) for sm in mol_list]
 
     # completeRingsOnly=True # there are different settings possible here
-    res = rdFMCS.FindMCS(mol_list, timeout=60, matchValences=False,
-                         ringMatchesRingOnly=True, completeRingsOnly=True)
-    if(res.canceled):
+    res = rdFMCS.FindMCS(mol_list, timeout=60, matchValences=False, ringMatchesRingOnly=True, completeRingsOnly=True)
+    if res.canceled:
         patt = Chem.MolFromSmiles("*")
     else:
         patt = res.queryMol
@@ -70,7 +68,8 @@ def mol_to_base64_highlight_substructure(mol, patt, width=250, d=None, showMCS=T
             bond_cols[bd] = col
 
         Chem.Draw.rdMolDraw2D.PrepareAndDrawMolecule(
-            d, mol, highlightAtoms=hit_ats, highlightBonds=hit_bonds, highlightAtomColors=atom_cols, highlightBondColors=bond_cols)
+            d, mol, highlightAtoms=hit_ats, highlightBonds=hit_bonds, highlightAtomColors=atom_cols, highlightBondColors=bond_cols
+        )
 
     d.FinishDrawing()
     stream = BytesIO(d.GetDrawingText())
@@ -92,10 +91,12 @@ def mol_to_base64_highlight_importances(mol_aligned, patt, current_rep, contourL
 
     try:
         d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(width, width)
-        weights = [float(prop) for prop in re.split(' |\n', mol_aligned.GetProp(current_rep))]
-        fig = SimilarityMaps.GetSimilarityMapFromWeights(mol_aligned, weights, size=(width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma)
+        weights = [float(prop) for prop in re.split(" |\n", mol_aligned.GetProp(current_rep))]
+        fig = SimilarityMaps.GetSimilarityMapFromWeights(
+            mol_aligned, weights, size=(width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma
+        )
         return mol_to_base64_highlight_substructure(mol_aligned, patt, d=fig, showMCS=showMCS, width=width)
     except Exception:
-        logging.exception(f'Error computing similarity map for {Chem.MolToSmiles(mol_aligned)}')
+        logging.exception(f"Error computing similarity map for {Chem.MolToSmiles(mol_aligned)}")
 
     return mol_to_base64_highlight_substructure(mol_aligned, patt, width=width)

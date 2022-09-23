@@ -1,8 +1,7 @@
 from abc import abstractmethod
 
 
-class ACimeDBO():
-
+class ACimeDBO:
     def get_datasets(self):
         return self.get_datasets_by()
 

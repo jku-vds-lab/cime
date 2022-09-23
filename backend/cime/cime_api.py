@@ -1,33 +1,43 @@
-import pickle
-from typing import Callable, Dict, List
-from flask import Blueprint, request, current_app, abort, jsonify
-import copy
-from rdkit import Chem
-from rdkit.Chem import MACCSkeys
-from rdkit.Chem import TemplateAlign, AllChem, Draw
-from rdkit.Chem.PropertyMol import PropertyMol
-from io import BytesIO, StringIO
 import base64
-import pandas as pd
-import time
-import logging
+import copy
 import json
-from .mol import mol_to_base64_highlight_importances, get_mcs, mol_to_base64_highlight_substructure, smiles_to_base64
-from .db import ACimeDBO
-from joblib import Parallel, delayed
+import logging
 import multiprocessing
-from .constants import descriptor_names_no_lineup,descriptor_names_show_lineup,fingerprint_modifier,id_col_name,maccs_modifier,mol_col,morgan_modifier,smiles_col
+import pickle
+import time
+from io import BytesIO, StringIO
+from typing import Callable, Dict, List
+
+import pandas as pd
+from flask import Blueprint, abort, current_app, jsonify, request
+from joblib import Parallel, delayed
+from rdkit import Chem
+from rdkit.Chem import AllChem, Draw, MACCSkeys, TemplateAlign
+from rdkit.Chem.PropertyMol import PropertyMol
+
+from .constants import (
+    descriptor_names_no_lineup,
+    descriptor_names_show_lineup,
+    fingerprint_modifier,
+    id_col_name,
+    maccs_modifier,
+    mol_col,
+    morgan_modifier,
+    smiles_col,
+)
+from .db import ACimeDBO
+from .mol import get_mcs, mol_to_base64_highlight_importances, mol_to_base64_highlight_substructure, smiles_to_base64
 
 _log = logging.getLogger(__name__)
 
-cime_api = Blueprint('cime', __name__)
+cime_api = Blueprint("cime", __name__)
 
 
 def get_cime_dbo() -> ACimeDBO:
-    return current_app.config['CIME_DBO']
+    return current_app.config["CIME_DBO"]
 
 
-def tryParseFloat(value):
+def try_parse_float(value):
     try:
         return float(value)
     except ValueError:
@@ -37,17 +47,17 @@ def tryParseFloat(value):
 def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
-    _log.info('Starting processing of SDF file')
+    _log.info("Starting processing of SDF file")
     rep_list = set()
 
     morgan_fp = None
     maccs_fp = None
-    columns = None
+    flattened_columns = None
 
-    if (column_metadata is not None):
-        morgan_fp = column_metadata.get('morganFingerprint')
-        maccs_fp = column_metadata.get('maccsFingerprint')
-        columns = column_metadata.get('columns')
+    if column_metadata is not None:
+        morgan_fp = column_metadata.get("morganFingerprint")
+        maccs_fp = column_metadata.get("maccsFingerprint")
+        flattened_columns = column_metadata.get("columns")
 
     with Chem.ForwardSDMolSupplier(file) as suppl:
         i = 0
@@ -59,7 +69,7 @@ def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
             row = {}
 
             # TODO: Make sure that *all* structures have either, otherwise conflicts arise
-            id: str = mol.GetProp('_Name') if mol.HasProp('_Name') else str(i)
+            id: str = mol.GetProp("_Name") if mol.HasProp("_Name") else str(i)
 
             smiles = Chem.MolToSmiles(mol)
             if smiles is None:
@@ -69,8 +79,8 @@ def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
             for k in mol.GetPropNames():
                 if k.startswith("atom"):
                     rep_list.add(k)
-                elif columns is None or (k in columns and columns[k]['include']):
-                    row[k] = tryParseFloat(mol.GetProp(k))
+                elif flattened_columns is None or (k in flattened_columns and flattened_columns[k]["include"]):
+                    row[k] = try_parse_float(mol.GetProp(k))
 
             # Add Mol from smiles
             if smiles_col_name is not None:
@@ -79,28 +89,31 @@ def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
                 except:
                     row[smiles_col_name] = None
 
-            if morgan_fp is not None and morgan_fp['include']:
+            if morgan_fp is not None and morgan_fp["include"]:
                 radius = morgan_fp["radius"]
-                fps = {f'{morgan_modifier}{radius}_{i}': key for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=morgan_fp['bits']))}
+                fps = {
+                    f"{morgan_modifier}{radius}_{i}": key
+                    for i, key in enumerate(AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=morgan_fp["bits"]))
+                }
                 row.update(fps)
 
-            if maccs_fp is not None and maccs_fp['include']:
-                fps = {f'{maccs_modifier}_{i}': key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
+            if maccs_fp is not None and maccs_fp["include"]:
+                fps = {f"{maccs_modifier}_{i}": key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
                 row.update(fps)
 
             yield id, smiles, row, {"mol": PropertyMol(mol), "column": smiles_col_name}, list(rep_list)
 
             i += 1
             if i % 1000 == 0:
-                _log.info(f'Processed {i} entries')
+                _log.info(f"Processed {i} entries")
 
-    _log.info(f'Finished processing of {i} entries')
+    _log.info(f"Finished processing of {i} entries")
 
 
 def sdf_to_df(file, id_col_name=id_col_name, smiles_col_name=smiles_col, mol_col_name=mol_col, first_only=False):
     # Inspired by https://github.com/rdkit/rdkit/blob/master/rdkit/Chem/PandasTools.py#L452
     # adapt LoadSDF method from rdkit. this version creates a pandas dataframe excluding atom specific properties and does not give every property the object type
-    _log.info('Starting processing of SDF file')
+    _log.info("Starting processing of SDF file")
     records = []
     rep_list = set()
 
@@ -119,11 +132,11 @@ def sdf_to_df(file, id_col_name=id_col_name, smiles_col_name=smiles_col, mol_col
                 if k.startswith("atom"):
                     rep_list.add(k)
                 else:
-                    row[k] = tryParseFloat(mol.GetProp(k))
+                    row[k] = try_parse_float(mol.GetProp(k))
 
             # Add name
-            if mol.HasProp('_Name'):
-                row[id_col_name] = mol.GetProp('_Name')
+            if mol.HasProp("_Name"):
+                row[id_col_name] = mol.GetProp("_Name")
 
             # Add Mol from smiles
             if smiles_col_name is not None:
@@ -141,7 +154,7 @@ def sdf_to_df(file, id_col_name=id_col_name, smiles_col_name=smiles_col, mol_col
 
             i += 1
             if i % 1000 == 0:
-                _log.info(f'Processed {i} entries')
+                _log.info(f"Processed {i} entries")
 
             if first_only:
                 break
@@ -156,20 +169,20 @@ def sdf_to_df(file, id_col_name=id_col_name, smiles_col_name=smiles_col, mol_col
     if not has_fingerprint:
         all_smiles = frame[smiles_col]
         fps = pd.DataFrame([list(AllChem.GetMorganFingerprintAsBitVect(Chem.MolFromSmiles(smi), 5, nBits=256)) for smi in all_smiles])
-        fps = fps.rename(mapper=lambda a: f'fingerprint_{a}', axis='columns')
+        fps = fps.rename(mapper=lambda a: f"fingerprint_{a}", axis="columns")
         frame = frame.join(fps)
 
-    _log.info(f'Finished processing of {i} entries')
+    _log.info(f"Finished processing of {i} entries")
     return frame, list(rep_list)
 
 
-@cime_api.route('/get_uploaded_files_list', methods=['GET'])
+@cime_api.route("/get_uploaded_files_list", methods=["GET"])
 def get_uploaded_files_list():
     # TODO: Check permissions will probably be done in dbo implementation
-    return jsonify([{'id': d.id, 'name': d.name} for d in get_cime_dbo().get_datasets()])
+    return jsonify([{"id": d.id, "name": d.name} for d in get_cime_dbo().get_datasets()])
 
 
-@cime_api.route('/delete_file/<id>', methods=['GET'])
+@cime_api.route("/delete_file/<id>", methods=["GET"])
 def delete_uploaded_file(id):
     # TODO: Is this required?
     if id == "test.sdf" or id == "test":
@@ -183,7 +196,7 @@ def delete_uploaded_file(id):
     return {"deleted": "true" if deleted else "false"}
 
 
-@cime_api.route('/get_atom_rep_list/<id>', methods=["GET"])
+@cime_api.route("/get_atom_rep_list/<id>", methods=["GET"])
 def get_atom_rep_list(id):
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
@@ -194,55 +207,47 @@ def get_atom_rep_list(id):
         return {"rep_list": dataset.rep_list}
 
 
-@cime_api.route('/upload_sdf', methods=['POST'])
+@cime_api.route("/upload_sdf", methods=["POST"])
 def upload_sdf():
-    _log.info(f'Received new file to upload')
+    _log.info(f"Received new file to upload")
     file = request.files.get("myFile")
     # TODO: Check for valid file, i.e. type/size/...
-    if not file or file.filename == '':
-        abort('No valid file provided')
+    if not file or file.filename == "":
+        abort("No valid file provided")
 
-    _log.info(f'Uploading file {file.filename}')
+    _log.info(f"Uploading file {file.filename}")
 
-    frame, rep_list = sdf_to_df(
-        file, smiles_col_name=smiles_col, mol_col_name=mol_col)
-
+    frame, rep_list = sdf_to_df(file, smiles_col_name=smiles_col, mol_col_name=mol_col)
 
     # TODO: Define format of saved file, i.e. include user?
-    saved = get_cime_dbo().save_file({
-        'name': file.filename,
-        'dataframe': frame,
-        'rep_list': rep_list
-    })
+    saved = get_cime_dbo().save_file({"name": file.filename, "dataframe": frame, "rep_list": rep_list})
 
-    return {
-        'filename': saved.name,
-        'id': saved.id
-    }
+    return {"filename": saved.name, "id": saved.id}
 
 
-@cime_api.route('/get_csv/<id>/', methods=['GET'])
-@cime_api.route('/get_csv/<id>/<modifiers>', methods=['GET'])
+@cime_api.route("/get_csv/<id>/", methods=["GET"])
+@cime_api.route("/get_csv/<id>/<modifiers>", methods=["GET"])
 def sdf_to_csv(id, modifiers=None):
     start_time = time.time()
     if modifiers:
         # split and trim modifier string
+        # TODO: This modifies the original list!!
         descriptor_names_no_lineup.extend([x.strip() for x in modifiers.split(";")])
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
-    columns: Dict = dataset.column_metadata['columns']
-    smiles_column_metadata = next((c for c in columns.values() if c.get('smiles')), None)
+    flattened_columns = dataset.column_metadata["columns"]
+    smiles_column_metadata = next((c for c in flattened_columns.values() if c.get("smiles")), None)
     smiles_col = smiles_column_metadata["id"] if smiles_column_metadata else None
-    views = dataset.column_metadata['views']
+    views = dataset.column_metadata.get("views")
 
     if not dataset:
         abort(404)
 
-    if hasattr(dataset, 'get_chunked_dataframe'):
-        _log.info('Dataset supports chunked streaming')
+    if hasattr(dataset, "get_chunked_dataframe"):
+        _log.info("Dataset supports chunked streaming")
 
-        #@stream_with_context
+        # @stream_with_context
         def generate():
             for i, frame in enumerate(dataset.get_chunked_dataframe(250)):
                 # sort such that the name column comes first and the smiles column comes second
@@ -257,64 +262,36 @@ def sdf_to_csv(id, modifiers=None):
 
                 new_cols = []
                 for col in frame.columns:
-                    modifier = {}
-                    col_name = col
+                    metadata = flattened_columns.get(col) or {}
+                    modifier = {
+                        # TODO: Unify this with the actual metadata from the dataset?
+                        "noLineUp": not metadata.get("lineup"),
+                        "smiles": metadata.get("smiles"),
+                        "featureLabel": metadata.get("group") or "",
+                        "dtype": "string" if col == id_col_name else None,
+                        "project": col.startswith(maccs_modifier)
+                        or col.startswith(morgan_modifier)
+                        or col.startswith(fingerprint_modifier),
+                    }
 
-                    if col.startswith(tuple(descriptor_names_no_lineup)):
-                        # this modifier tells lineup that the column should not be viewed at all (remove this modifier, if you want to be able to add the column with the sideview of lineup)
-                        modifier['noLineUp'] = True
-                        # this modifier tells lineup that the columns belong to a certain group
-                        modifier['featureLabel'] = col.split("_")[0]
-                        split_col = col.split("_")
-                        col_name = col.replace(
-                            split_col[0]+"_", "") + " (" + split_col[0] + ")"
-                    elif col.startswith(tuple(descriptor_names_show_lineup)):
-                        # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
-                        # this modifier tells lineup that the columns belong to a certain group
-                        modifier['featureLabel'] = col.split("_")[0]
-                        split_col = col.split("_")
-                        col_name = col.replace(
-                            split_col[0]+"_", "") + " (" + split_col[0] + ")"
-                    elif smiles_col and col == smiles_col:
-                        # this modifier tells lineup that a structure image of this smiles string should be loaded
-                        modifier['hideLineUp'] = True
-                        modifier['imgSmiles'] = True
-
-                        split_col = col.split("_")
-                        if len(split_col) >= 2:
-                            col_name = col.replace(
-                                split_col[0]+"_", "") + " (" + split_col[0] + ")"
-
-
-                    if col in columns:
-                        modifier['noLineUp'] = not columns[col]['lineup']
-
-                        if views and len(views) > 0:
-                            modifier['view'] = []
-                            for c, view in enumerate(views):
-                                if 'x' in view and view['x'] == col:
-                                    modifier['view'].append(f'x{c + 1}')
-                                if 'y' in view and view['y'] == col:
-                                    modifier['view'].append(f'y{c + 1}')
-
-                        
-
-                    if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
-                        modifier['project'] = False
-
-                    if col == id_col_name:
-                        modifier['dtype'] = 'string'
+                    if views and len(views) > 0:
+                        modifier["view"] = []
+                        for c, view in enumerate(views):
+                            if "x" in view and view["x"] == col:
+                                modifier["view"].append(f"x{c + 1}")
+                            if "y" in view and view["y"] == col:
+                                modifier["view"].append(f"y{c + 1}")
 
                     # remove the last comma
-                    new_cols.append("%s%s" % (col_name, json.dumps(modifier)))
+                    new_cols.append(f"{col}{json.dumps(modifier)}")
 
                 frame.columns = new_cols
                 csv_buffer = StringIO()
-                frame.to_csv(csv_buffer, index=False, header=(i==0))
+                frame.to_csv(csv_buffer, index=False, header=(i == 0))
                 yield csv_buffer.getvalue()
 
-        return ''.join(list(generate()))
-        #return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
+        return "".join(list(generate()))
+        # return Response(generate(), mimetype='text/csv', headers={'X-Accel-Buffering': 'no'})
     else:
         frame = dataset.dataframe
 
@@ -339,17 +316,15 @@ def sdf_to_csv(id, modifiers=None):
                 # this modifier tells lineup that the columns belong to a certain group
                 modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
                 split_col = col.split("_")
-                col_name = col.replace(
-                    split_col[0]+"_", "") + " (" + split_col[0] + ")"
+                col_name = col.replace(split_col[0] + "_", "") + " (" + split_col[0] + ")"
             elif col.startswith(tuple(descriptor_names_show_lineup)):
                 # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
                 # this modifier tells lineup that the columns belong to a certain group
                 modifier = '%s"featureLabel":"%s",' % (modifier, col.split("_")[0])
                 split_col = col.split("_")
-                col_name = col.replace(
-                    split_col[0]+"_", "") + " (" + split_col[0] + ")"
+                col_name = col.replace(split_col[0] + "_", "") + " (" + split_col[0] + ")"
             # else:
-                # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
+            # modifier = '%s"showLineUp":true,'%modifier # this modifier tells lineup that the column should be initially viewed
 
             elif smiles_col and col == smiles_col:
                 # this modifier tells lineup that a structure image of this smiles string should be loaded
@@ -357,11 +332,10 @@ def sdf_to_csv(id, modifiers=None):
 
                 split_col = col.split("_")
                 if len(split_col) >= 2:
-                    col_name = col.replace(
-                        split_col[0]+"_", "") + " (" + split_col[0] + ")"
+                    col_name = col.replace(split_col[0] + "_", "") + " (" + split_col[0] + ")"
 
             if not col.startswith(maccs_modifier) and not col.startswith(morgan_modifier) and not col.startswith(fingerprint_modifier):
-                modifier = '%s"project":false,'%modifier
+                modifier = '%s"project":false,' % modifier
 
             if col == id_col_name:
                 modifier = '%s"dtype":"string",' % modifier
@@ -374,18 +348,17 @@ def sdf_to_csv(id, modifiers=None):
         csv_buffer = StringIO()
         frame.to_csv(csv_buffer, index=False)
 
-        delta_time = time.time()-start_time
-        print("took", time.strftime('%H:%M:%S', time.gmtime(
-            delta_time)), f"to load file {id}")
+        delta_time = time.time() - start_time
+        print("took", time.strftime("%H:%M:%S", time.gmtime(delta_time)), f"to load file {id}")
         print(f"took {delta_time/60} min {delta_time % 60} s to load file {id}")
         # print("get_csv time elapsed [s]:", time.time()-start_time)
 
         return csv_buffer.getvalue()
 
 
-@cime_api.route('/get_difference_highlight', methods=['OPTIONS', 'POST'])
+@cime_api.route("/get_difference_highlight", methods=["OPTIONS", "POST"])
 def smiles_to_difference_highlight():
-    if request.method == 'POST':
+    if request.method == "POST":
         smilesA = request.form.get("smilesA").split(",")
         smilesB = request.form.get("smilesB").split(",")
 
@@ -417,10 +390,10 @@ def smiles_to_difference_highlight():
 
         mol = molB
 
-        highlight_atoms = set(range(len(mol.GetAtoms()))) - \
-            set(mol.GetSubstructMatch(patt))
-        highlight_bonds = [bond.GetIdx() for bond in mol.GetBonds() if bond.GetBeginAtomIdx(
-        ) in highlight_atoms or bond.GetEndAtomIdx() in highlight_atoms]
+        highlight_atoms = set(range(len(mol.GetAtoms()))) - set(mol.GetSubstructMatch(patt))
+        highlight_bonds = [
+            bond.GetIdx() for bond in mol.GetBonds() if bond.GetBeginAtomIdx() in highlight_atoms or bond.GetEndAtomIdx() in highlight_atoms
+        ]
         print(highlight_atoms, mol.GetSubstructMatch(patt))
 
         highlight_atom_colors = {i: (0, 0.49, 0.68) for i in highlight_atoms}
@@ -428,8 +401,14 @@ def smiles_to_difference_highlight():
         # print(mol_cpy.GetSubstructMatch(patt), mol.GetSubstructMatch(patt), highlight_atoms)
 
         d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(200, 200)
-        Chem.Draw.rdMolDraw2D.PrepareAndDrawMolecule(d, mol, highlightAtoms=highlight_atoms, highlightBonds=highlight_bonds,
-                                                     highlightAtomColors=highlight_atom_colors, highlightBondColors=highlight_bond_colors)
+        Chem.Draw.rdMolDraw2D.PrepareAndDrawMolecule(
+            d,
+            mol,
+            highlightAtoms=highlight_atoms,
+            highlightBonds=highlight_bonds,
+            highlightAtomColors=highlight_atom_colors,
+            highlightBondColors=highlight_bond_colors,
+        )
 
         d.FinishDrawing()
 
@@ -443,9 +422,9 @@ def smiles_to_difference_highlight():
         return {}
 
 
-@cime_api.route('/get_mol_img', methods=['OPTIONS', 'POST'])
+@cime_api.route("/get_mol_img", methods=["OPTIONS", "POST"])
 def smiles_to_img_post():
-    if request.method == 'POST':
+    if request.method == "POST":
         smiles = request.form.get("smiles")
         img = smiles_to_base64(smiles)
         return {"data": img}
@@ -458,14 +437,15 @@ def parallelized(func: Callable, l: List):
     def wrapper(arg_with_index):
         i, arg = arg_with_index
         return (i, func(arg_with_index))
+
     num_cores = multiprocessing.cpu_count()
     unsorted_result = filter(None, Parallel(n_jobs=num_cores)(delayed(wrapper)(m) for m in list(enumerate(l))))
     return [x[1] for x in sorted(unsorted_result, key=lambda x: x[0])]
 
 
-@cime_api.route('/get_mol_imgs', methods=['OPTIONS', 'POST'])
+@cime_api.route("/get_mol_imgs", methods=["OPTIONS", "POST"])
 def smiles_list_to_imgs():
-    if request.method == 'POST':
+    if request.method == "POST":
         ids = request.form.getlist("ids")
         current_rep = request.form.get("current_rep")
         contourLines = request.form.get("contourLines")
@@ -498,13 +478,13 @@ def smiles_list_to_imgs():
 
         if doAlignment:
             first = mol_lst[0]
-            # set the coordinates of the core pattern based on the coordinates of the first molecule     
+            # set the coordinates of the core pattern based on the coordinates of the first molecule
             match = first.GetSubstructMatch(patt)
             conf = Chem.Conformer(patt.GetNumAtoms())
             TemplateAlign.rdDepictor.Compute2DCoords(first)
             mconf = first.GetConformer(0)
-            for i,aidx in enumerate(match):
-                conf.SetAtomPosition(i,mconf.GetAtomPosition(aidx))
+            for i, aidx in enumerate(match):
+                conf.SetAtomPosition(i, mconf.GetAtomPosition(aidx))
             patt.AddConformer(conf)
 
         img_lst = []
@@ -530,9 +510,9 @@ def smiles_list_to_imgs():
         return {}
 
 
-@cime_api.route('/get_common_mol_img', methods=['OPTIONS', 'POST'])
+@cime_api.route("/get_common_mol_img", methods=["OPTIONS", "POST"])
 def smiles_list_to_common_substructure_img():
-    if request.method == 'POST':
+    if request.method == "POST":
         smiles_list = request.form.getlist("smiles_list")
         if len(smiles_list) == 0:
             return {"error": "empty SMILES list"}
@@ -561,9 +541,9 @@ def smiles_list_to_common_substructure_img():
 
 
 # --------- search & filter ---------
-@cime_api.route('/get_substructure_count', methods=['OPTIONS', 'POST'])
+@cime_api.route("/get_substructure_count", methods=["OPTIONS", "POST"])
 def smiles_list_to_substructure_count():
-    if request.method == 'POST':
+    if request.method == "POST":
         smiles_list = request.form.get("smiles_list").split(",")
         filter_smiles = request.form.get("filter_smiles")
 
@@ -572,8 +552,11 @@ def smiles_list_to_substructure_count():
 
         patt = Chem.MolFromSmiles(filter_smiles)
         if patt:
-            substructure_counts = [(smiles, len(Chem.MolFromSmiles(smiles).GetSubstructMatch(
-                patt))) for smiles in smiles_list if Chem.MolFromSmiles(smiles) is not None]
+            substructure_counts = [
+                (smiles, len(Chem.MolFromSmiles(smiles).GetSubstructMatch(patt)))
+                for smiles in smiles_list
+                if Chem.MolFromSmiles(smiles) is not None
+            ]
             return {"substructure_counts": substructure_counts}
         return {"error": "invalid SMILES filter"}
     else:
