@@ -55,7 +55,7 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
         tab: LineUpTabPanel,
         title: "LineUp Integration",
         description: "Settings for LineUp Integration",
-        icon: PSEIcons.PseLineup,
+        icon: <img src={PSEIcons.PseLineup} alt="Lineup" />,
       },
     ],
     detailViews: [
