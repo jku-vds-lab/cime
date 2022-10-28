@@ -236,7 +236,7 @@ def sdf_to_csv(id, modifiers=None):
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
-    domains = dataset.domains
+    domains = dataset.column_metadata["domains"]
 
     flattened_columns = dataset.column_metadata["columns"]
     smiles_column_metadata = next((c for c in flattened_columns.values() if c.get("smiles")), None)
@@ -284,7 +284,7 @@ def sdf_to_csv(id, modifiers=None):
                             if "y" in view and view["y"] == col:
                                 modifier["view"].append(f"y{c + 1}")
 
-                    if col in domains:
+                    if domains is not None and col in domains:
                         modifier["domain"] = domains[col]
 
                     # remove the last comma
