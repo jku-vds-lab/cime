@@ -236,7 +236,7 @@ def sdf_to_csv(id, modifiers=None):
 
     dataset = get_cime_dbo().get_dataset_by(id=id)
 
-    domains = dataset.domains
+    domains = dataset.column_metadata.get("domains", {})
 
     flattened_columns = dataset.column_metadata["columns"]
     smiles_column_metadata = next((c for c in flattened_columns.values() if c.get("smiles")), None)

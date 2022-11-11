@@ -5,7 +5,6 @@ import {
   Application,
   PluginRegistry,
   createRootReducer,
-  PSEIcons,
   BaseConfig,
   FeatureConfig,
   ComponentConfig,
@@ -14,11 +13,10 @@ import {
 import { ChemPlugin } from "./Cime/ChemPlugin";
 import { DatasetTabPanel } from "./Overrides/DatasetTabPanel";
 import { CimeAppBar } from "./Overrides/CimeAppBar";
-import { LineUpContext } from "./LineUpContext";
-import { LineUpTabPanel } from "./Overrides/LineUpTabPanel";
 import { AppState, CIMEReducers } from "./State/Store";
 import merge from 'lodash/merge'
 import cloneDeep from 'lodash/cloneDeep'
+import "./LineUpContext.scss";
 
 export const DEMO = false;
 
@@ -48,23 +46,6 @@ export const DEFAULT_CIME_APP_CONFIG: CIMEAppProps = {
   overrideComponents: {
     datasetTab: DatasetTabPanel,
     appBar: CimeAppBar,
-    tabs: [
-      {
-        name: "lineup",
-        // @ts-ignore TODO: @moritz error after I added the correct typing for DEFAULT_CIME_APP_CONFIG
-        tab: LineUpTabPanel,
-        title: "LineUp Integration",
-        description: "Settings for LineUp Integration",
-        icon: <img src={PSEIcons.PseLineup} alt="Lineup" />,
-      },
-    ],
-    detailViews: [
-      {
-        name: "lineup",
-        // @ts-ignore TODO: @moritz error after I added the correct typing for DEFAULT_CIME_APP_CONFIG
-        view: <LineUpContext key='lineup'></LineUpContext>,
-      },
-    ],
   }
 }
 
