@@ -284,7 +284,7 @@ def sdf_to_csv(id, modifiers=None):
                             if "y" in view and view["y"] == col:
                                 modifier["view"].append(f"y{c + 1}")
 
-                    if domains is not None and col in domains:
+                    if col in domains:
                         modifier["domain"] = domains[col]
 
                     # remove the last comma
