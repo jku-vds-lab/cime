@@ -118,6 +118,7 @@ export class SDFLoader implements Loader {
         },
       });
     });
+    
 
     trackPromise(
       promise

@@ -1,6 +1,7 @@
 /// <reference types="react" />
 import { API, BaseConfig, FeatureConfig, ComponentConfig } from "projection-space-explorer";
 import { AppState } from "./State/Store";
+import "./LineUpContext.scss";
 export declare const DEMO = false;
 export declare type CIMEAppProps = {
     config?: BaseConfig;

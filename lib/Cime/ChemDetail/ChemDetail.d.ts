@@ -8,15 +8,7 @@ declare const connector_Chem: import("react-redux").InferableComponentEnhancerWi
     };
     rdkitSettings: import("../../State/RDKitSettingsDuck").RDKitSettingsType;
     columns: {
-        [name: string]: {
-            distinct: any;
-            isNumeric: boolean;
-            metaInformation: any;
-            featureType: import("projection-space-explorer").FeatureType;
-            range: any;
-            featureLabel: string;
-            project: boolean;
-        };
+        [name: string]: import("projection-space-explorer").ColumnType;
     };
 } & {
     setCurrentAggregation: (samples: number[]) => any;
@@ -40,15 +32,7 @@ export declare const ChemLegendParent: import("react-redux").ConnectedComponent<
     };
     rdkitSettings: import("../../State/RDKitSettingsDuck").RDKitSettingsType;
     columns: {
-        [name: string]: {
-            distinct: any;
-            isNumeric: boolean;
-            metaInformation: any;
-            featureType: import("projection-space-explorer").FeatureType;
-            range: any;
-            featureLabel: string;
-            project: boolean;
-        };
+        [name: string]: import("projection-space-explorer").ColumnType;
     };
 } & {
     setCurrentAggregation: (samples: number[]) => any;
