@@ -29,7 +29,7 @@ export declare const setRDKit_doAlignment: (input: any) => {
     type: string;
     input: any;
 };
-export declare type RDKitSettingsType = {
+export type RDKitSettingsType = {
     contourLines: number;
     scale: number;
     sigma: number;

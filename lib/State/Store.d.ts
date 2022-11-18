@@ -10,7 +10,7 @@ declare const combined: import("redux").Reducer<import("redux").CombinedState<{
 /**
  * Cime typings...
  */
-export declare type CimeState = ReturnType<typeof combined>;
-export declare type AppState = RootState & CimeState;
+export type CimeState = ReturnType<typeof combined>;
+export type AppState = RootState & CimeState;
 export {};
 //# sourceMappingURL=Store.d.ts.map
