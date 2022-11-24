@@ -1,5 +1,10 @@
 import * as React from "react";
-import { Dataset, DatasetType, IVector, PSEPlugin } from "projection-space-explorer";
+import {
+  Dataset,
+  DatasetType,
+  IVector,
+  PSEPlugin,
+} from "projection-space-explorer";
 import { ChemLegendParent } from "./ChemDetail/ChemDetail";
 
 export class ChemPlugin extends PSEPlugin {

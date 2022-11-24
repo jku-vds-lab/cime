@@ -29,4 +29,8 @@ jobs:
         npm run build
     - name: Compile lib
       run: |
+<<<<<<< HEAD
         npm run compile:lib
+=======
+        npm run compile:lib
+>>>>>>> dv_develop

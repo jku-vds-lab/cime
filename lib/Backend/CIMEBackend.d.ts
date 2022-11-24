@@ -30,6 +30,7 @@ export declare class CIMEBackend {
     }>;
     getRepresentationList: (refresh: boolean, id: string | number, controller: AbortController) => Promise<any>;
     calculateHDBScanClusters: (X: any, min_cluster_size: any, min_cluster_samples: any, allow_single_cluster: any) => Promise<any>;
+    calculateScores: (id: string, cime_ids: string[], currentRep: string) => Promise<any>;
 }
 export declare const CIMEBackendFromEnv: CIMEBackend;
 //# sourceMappingURL=CIMEBackend.d.ts.map
