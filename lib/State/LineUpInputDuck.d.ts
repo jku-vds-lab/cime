@@ -25,7 +25,7 @@ export declare const setLineUpInput_update: (input: any) => {
     type: string;
     input: any;
 };
-export declare type LineUpType = {
+export type LineUpType = {
     show: boolean;
     dump: string;
     filter: object;

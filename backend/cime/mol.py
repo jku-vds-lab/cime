@@ -77,26 +77,3 @@ def mol_to_base64_highlight_substructure(mol, patt, width=250, d=None, showMCS=T
     img_str = base64.b64encode(stream.getvalue())
     stream.close()
     return img_str.decode("utf-8")  # d.GetDrawingText()
-
-
-def mol_to_base64_highlight_importances(mol_aligned, patt, current_rep, contourLines, scale, sigma, showMCS, width=250):
-    contourLines = int(contourLines)
-    scale = float(scale)
-    sigma = float(sigma)
-    showMCS = showMCS == "true"
-    width = int(width)
-
-    if sigma <= 0:
-        sigma = None
-
-    try:
-        d = Chem.Draw.rdMolDraw2D.MolDraw2DCairo(width, width)
-        weights = [float(prop) for prop in re.split(" |\n", mol_aligned.GetProp(current_rep))]
-        fig = SimilarityMaps.GetSimilarityMapFromWeights(
-            mol_aligned, weights, size=(width, width), draw2d=d, contourLines=contourLines, scale=scale, sigma=sigma
-        )
-        return mol_to_base64_highlight_substructure(mol_aligned, patt, d=fig, showMCS=showMCS, width=width)
-    except Exception:
-        logging.exception(f"Error computing similarity map for {Chem.MolToSmiles(mol_aligned)}")
-
-    return mol_to_base64_highlight_substructure(mol_aligned, patt, width=width)

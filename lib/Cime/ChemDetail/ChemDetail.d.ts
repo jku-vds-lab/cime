@@ -17,8 +17,8 @@ declare const connector_Chem: import("react-redux").InferableComponentEnhancerWi
 /**
  * Type that holds the props we declared above in mapStateToProps and mapDispatchToProps
  */
-declare type PropsFromRedux_Chem = ConnectedProps<typeof connector_Chem>;
-declare type Props_Chem_Parent = PropsFromRedux_Chem & {
+type PropsFromRedux_Chem = ConnectedProps<typeof connector_Chem>;
+type Props_Chem_Parent = PropsFromRedux_Chem & {
     selection: any[];
     aggregate: boolean;
     mcs_only?: boolean;

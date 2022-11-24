@@ -5,7 +5,7 @@ export declare const LoadingIndicatorDialog: (props: any) => JSX.Element;
 declare const connector: import("react-redux").InferableComponentEnhancerWithProps<{
     setDataset: (value: any) => any;
 }, {}>;
-declare type Props = ConnectedProps<typeof connector>;
+type Props = ConnectedProps<typeof connector>;
 export declare const DatasetTabPanel: import("react-redux").ConnectedComponent<({ setDataset }: Props) => JSX.Element, import("react-redux").Omit<{
     setDataset: (value: any) => any;
 }, "setDataset">>;

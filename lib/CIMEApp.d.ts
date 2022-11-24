@@ -3,7 +3,7 @@ import { API, BaseConfig, FeatureConfig, ComponentConfig } from "projection-spac
 import { AppState } from "./State/Store";
 import "./LineUpContext.scss";
 export declare const DEMO = false;
-export declare type CIMEAppProps = {
+export type CIMEAppProps = {
     config?: BaseConfig;
     features?: FeatureConfig;
     overrideComponents?: ComponentConfig;

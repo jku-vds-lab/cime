@@ -29,7 +29,11 @@ export declare const setRDKit_doAlignment: (input: any) => {
     type: string;
     input: any;
 };
-export declare type RDKitSettingsType = {
+export declare const setRDKit_colorDomain: (input: any) => {
+    type: string;
+    input: any;
+};
+export type RDKitSettingsType = {
     contourLines: number;
     scale: number;
     sigma: number;
@@ -37,6 +41,12 @@ export declare type RDKitSettingsType = {
     showMCS: boolean;
     width: number;
     doAlignment: boolean;
+    domain: {
+        type: number;
+        value: number[];
+        deadzone: number;
+        thresholds: number[];
+    };
 };
 declare const rdkitSettings: (state: RDKitSettingsType, action: any) => RDKitSettingsType;
 export default rdkitSettings;

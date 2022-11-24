@@ -4,6 +4,7 @@ import json
 import logging
 import multiprocessing
 import pickle
+import re
 import time
 from io import BytesIO, StringIO
 from typing import Callable, Dict, List
@@ -564,5 +565,43 @@ def smiles_list_to_substructure_count():
             ]
             return {"substructure_counts": substructure_counts}
         return {"error": "invalid SMILES filter"}
+    else:
+        return {}
+
+
+@cime_api.route("/calculate_scores", methods=["OPTIONS", "POST"])
+def calculate_scores():
+    if request.method == "POST":
+        ids = request.form.getlist("ids")
+        representations = request.form.getlist("current_rep")
+
+        if len(ids) == 0:
+            return {"error": "empty ids list"}
+
+        id = request.form.get("filename")
+        dataset = get_cime_dbo().get_dataset_by(id=id)
+        if not dataset:
+            return {"error": "dataset not found"}
+
+        id_to_mol: Dict[str, str] = dataset.get_mols_by_ids(ids)
+        mol_lst = list(id_to_mol.values())
+
+        result_weights = {}
+
+        for key in id_to_mol:
+            mol = id_to_mol[key]
+
+            for cur_rep in representations:
+                if not mol.HasProp(cur_rep):
+                    continue
+            
+                if cur_rep not in result_weights:
+                    result_weights[cur_rep] = {}
+                
+                result_weights[cur_rep][key] = [float(prop) for prop in re.split(" |\n", mol.GetProp(cur_rep))]
+
+        mcs = get_mcs(mol_lst)
+        
+        return {"weights": result_weights, "mcs": Chem.MolToSmiles(mcs)}
     else:
         return {}

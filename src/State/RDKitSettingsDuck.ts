@@ -9,6 +9,7 @@ const SET_REFRESH = "ducks/rdkitsettings/SET_REFRESH";
 const SET_SHOW_MCS = "ducks/rdkitsettings/SET_SHOW_MCS";
 const SET_WIDTH = "ducks/rdkitsettings/SET_WIDTH";
 const SET_DO_ALIGNMENT = "ducks/rdkitsettings/SET_DO_ALIGNMENT";
+const SET_DO_DOMAIN = "ducks/rdkitsettings/SET_DO_DOMAIN";
 
 export const setRDKit_contourLines = (input) => ({
   type: SET_CONTOURLINES,
@@ -45,14 +46,25 @@ export const setRDKit_doAlignment = (input) => ({
   input: input,
 });
 
+export const setRDKit_colorDomain = (input) => ({
+  type: SET_DO_DOMAIN,
+  input: input,
+});
+
 const initialState: RDKitSettingsType = {
   contourLines: 10,
   scale: -1,
   sigma: 0,
   refresh: 0,
-  showMCS: true,
+  showMCS: false,
   width: 250,
   doAlignment: true,
+  domain: {
+    type: 0,
+    value: null,
+    deadzone: 0,
+    thresholds: [],
+  },
 };
 
 export type RDKitSettingsType = {
@@ -63,6 +75,12 @@ export type RDKitSettingsType = {
   showMCS: boolean;
   width: number;
   doAlignment: boolean;
+  domain: {
+    type: number;
+    value: number[];
+    deadzone: number;
+    thresholds: number[];
+  };
 };
 
 const rdkitSettings = (state = initialState, action): RDKitSettingsType => {
@@ -81,6 +99,11 @@ const rdkitSettings = (state = initialState, action): RDKitSettingsType => {
       return { ...state, width: action.input };
     case SET_DO_ALIGNMENT:
       return { ...state, doAlignment: action.input };
+    case SET_DO_DOMAIN:
+      return {
+        ...state,
+        domain: { ...state.domain, ...action.input },
+      };
     default:
       return state;
   }
