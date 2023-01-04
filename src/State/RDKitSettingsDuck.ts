@@ -2,14 +2,16 @@
  * Duck file for the RDKit Settings
  */
 
-const SET_CONTOURLINES = "ducks/rdkitsettings/SET_CONTOURLINES";
-const SET_SCALE = "ducks/rdkitsettings/SET_SCALE";
-const SET_SIGMA = "ducks/rdkitsettings/SET_SIGMA";
-const SET_REFRESH = "ducks/rdkitsettings/SET_REFRESH";
-const SET_SHOW_MCS = "ducks/rdkitsettings/SET_SHOW_MCS";
-const SET_WIDTH = "ducks/rdkitsettings/SET_WIDTH";
-const SET_DO_ALIGNMENT = "ducks/rdkitsettings/SET_DO_ALIGNMENT";
-const SET_DO_DOMAIN = "ducks/rdkitsettings/SET_DO_DOMAIN";
+const SET_CONTOURLINES = 'ducks/rdkitsettings/SET_CONTOURLINES';
+const SET_SCALE = 'ducks/rdkitsettings/SET_SCALE';
+const SET_SIGMA = 'ducks/rdkitsettings/SET_SIGMA';
+const SET_REFRESH = 'ducks/rdkitsettings/SET_REFRESH';
+const SET_SHOW_MCS = 'ducks/rdkitsettings/SET_SHOW_MCS';
+const SET_WIDTH = 'ducks/rdkitsettings/SET_WIDTH';
+const SET_DO_ALIGNMENT = 'ducks/rdkitsettings/SET_DO_ALIGNMENT';
+const SET_DO_DOMAIN = 'ducks/rdkitsettings/SET_DO_DOMAIN';
+const SET_SHOW_BARCHART = 'ducks/rdkitsettings/SHOW_BARCHART';
+const SET_SHOW_ATTRIBUTES = 'ducks/rdkitsettings/SHOW_ATTRIBUTES';
 
 export const setRDKit_contourLines = (input) => ({
   type: SET_CONTOURLINES,
@@ -51,6 +53,16 @@ export const setRDKit_colorDomain = (input) => ({
   input: input,
 });
 
+export const setRDKit_showBarChart = (input) => ({
+  type: SET_SHOW_BARCHART,
+  input: input,
+});
+
+export const setRDKit_showAttributes = (input) => ({
+  type: SET_SHOW_ATTRIBUTES,
+  input: input,
+});
+
 const initialState: RDKitSettingsType = {
   contourLines: 10,
   scale: -1,
@@ -65,6 +77,8 @@ const initialState: RDKitSettingsType = {
     deadzone: 0,
     thresholds: [],
   },
+  showBarChart: false,
+  showAttributes: false,
 };
 
 export type RDKitSettingsType = {
@@ -81,6 +95,8 @@ export type RDKitSettingsType = {
     deadzone: number;
     thresholds: number[];
   };
+  showBarChart: boolean;
+  showAttributes: boolean;
 };
 
 const rdkitSettings = (state = initialState, action): RDKitSettingsType => {
@@ -103,6 +119,16 @@ const rdkitSettings = (state = initialState, action): RDKitSettingsType => {
       return {
         ...state,
         domain: { ...state.domain, ...action.input },
+      };
+    case SET_SHOW_BARCHART:
+      return {
+        ...state,
+        showBarChart: action.input,
+      };
+    case SET_SHOW_ATTRIBUTES:
+      return {
+        ...state,
+        showAttributes: action.input,
       };
     default:
       return state;
