@@ -14,17 +14,16 @@ def get_mcs(mol_list):
         return Chem.MolFromSmiles("*")
 
     if type(mol_list[0]) == str:
-        # TODO: handle invalid smiles
         mol_list = [Chem.MolFromSmiles(sm) for sm in mol_list]
+
+    mol_list = [m for m in mol_list if m is not None]
+
+    if len(mol_list) <= 1:
+        return Chem.MolFromSmiles("*")
 
     # completeRingsOnly=True # there are different settings possible here
     res = rdFMCS.FindMCS(mol_list, timeout=60, matchValences=False, ringMatchesRingOnly=True, completeRingsOnly=True)
-    if res.canceled:
-        patt = Chem.MolFromSmiles("*")
-    else:
-        patt = res.queryMol
-
-    return patt
+    return res.queryMol or Chem.MolFromSmiles("*")
 
 
 def smiles_to_base64(smiles):

@@ -40,7 +40,7 @@ export class CIMEBackend {
   };
   handleJSONErrors = (data) => {
     if (Object.keys(data).includes('error')) {
-      alert(data['error']);
+      // alert(data['error']);
     }
     return data;
   };
