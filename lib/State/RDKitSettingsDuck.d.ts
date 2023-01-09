@@ -33,6 +33,14 @@ export declare const setRDKit_colorDomain: (input: any) => {
     type: string;
     input: any;
 };
+export declare const setRDKit_showBarChart: (input: any) => {
+    type: string;
+    input: any;
+};
+export declare const setRDKit_showAttributes: (input: any) => {
+    type: string;
+    input: any;
+};
 export type RDKitSettingsType = {
     contourLines: number;
     scale: number;
@@ -47,6 +55,8 @@ export type RDKitSettingsType = {
         deadzone: number;
         thresholds: number[];
     };
+    showBarChart: boolean;
+    showAttributes: boolean;
 };
 declare const rdkitSettings: (state: RDKitSettingsType, action: any) => RDKitSettingsType;
 export default rdkitSettings;
