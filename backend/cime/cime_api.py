@@ -102,7 +102,7 @@ def sdf_to_df_generator(file, smiles_col_name=smiles_col, column_metadata=None):
                 fps = {f"{maccs_modifier}_{i}": key for i, key in enumerate(MACCSkeys.GenMACCSKeys(mol))}
                 row.update(fps)
 
-            yield id, smiles, row, {"mol": PropertyMol(mol), "column": smiles_col_name}, list(rep_list)
+            yield id, smiles, row, {"mol": PropertyMol(mol), "column": smiles_col_name, "possible_smiles": [smiles_col_name]}, list(rep_list)
 
             i += 1
             if i % 1000 == 0:
@@ -210,7 +210,7 @@ def get_atom_rep_list(id):
 
 @cime_api.route("/upload_sdf", methods=["POST"])
 def upload_sdf():
-    _log.info(f"Received new file to upload")
+    _log.info("Received new file to upload")
     file = request.files.get("myFile")
     # TODO: Check for valid file, i.e. type/size/...
     if not file or file.filename == "":
